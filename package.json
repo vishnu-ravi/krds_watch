@@ -1,0 +1,18 @@
+{
+  "name": "krds-fav",
+  "version": "0.0.1",
+  "description": "App to Maintain KRDS Fav Links",
+  "main": "app.js",
+  "engines": {
+    "node": "0.10.32"
+  },
+  "dependencies": {
+    "body-parser": "~1.14.2",
+    "express": "~4.13.4",
+    "express3-handlebars": "~0.5.2",
+    "mongoose": "~4.3.7",
+    "mongoose-paginate": "5.0.0",
+    "path": "~0.12.7",
+    "promise": "^7.1.1"
+  }
+}

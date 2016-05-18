@@ -1,0 +1,62 @@
+.error {
+    visibility: hidden;
+    color: red;
+    text-align: center;
+    height: 20px;
+}
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+.alert {
+    position: fixed;
+    width: 100%;
+    text-align: center;
+    bottom: 10px;
+}
+
+.navUser img {
+    height: 50px;
+}
+
+#preview_image {
+    width: 200px;
+}
+
+.defaultHidden {
+    display: none;
+}
+
+.alert {
+    position: fixed;
+    width: 100%;
+    text-align: center;
+    bottom: 10px;
+}
+
+.loader {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 )
+                url('/images/loader.gif')
+                50% 50%
+                no-repeat;
+}
+
+body.loading {
+    overflow: hidden;
+}
+
+body.loading .loader {
+    display: block;
+}
+
+.post .userImg {
+    height: 50px;
+}

@@ -1,0 +1,57 @@
+<div class="container-fluid container-table">
+    <div id="form_container" class="row vertical-center-row">
+        <div class="col-lg-6 col-lg-offset-3 text-center">
+            <h1 class="text-center" style="margin-bottom: 50px">Login</h1>
+            <div class="g-signin2" data-onsuccess="onSignIn"></div>
+        </div>
+        <div class="alert fade in" id="login-error" style="display:none;">
+            <button type="button" class="close">×</button>
+            <p id="message"></p>
+        </div>
+    </div>
+</div>
+<script>
+function onSignIn(googleUser) {
+    var profile = googleUser.getBasicProfile();
+    var id_token = googleUser.getAuthResponse().id_token;
+    console.log(profile, id_token);
+    console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+    console.log('Name: ' + profile.getName());
+    console.log('Image URL: ' + profile.getImageUrl());
+    console.log('Email: ' + profile.getEmail());
+    var domain = profile.getEmail().replace(/.*@/, "");
+    if(domain .indexOf("krds") == -1)
+    {
+        $('#message').html('You are not a KRDS user');
+        $('#login-error').show();
+    }
+    else {
+        $.ajax({
+        cache: false,
+        type: 'POST',
+        url: '/user',
+        dataType: 'json',
+        data: {
+            id_token: id_token
+        },
+        error: function(jXhr) {
+            if(jXhr.status == 400 || jXhr.status == 500)
+                //_this.showError(jXhr.msg);
+                console.log(jXhr.msg);
+        },
+        success: function(data) {
+            console.log(data);
+            if(data.success == true)
+                location.reload();
+        }
+    });
+    }
+}
+$(document).ready(function()
+{
+    $('.alert .close').on('click', function(e) {
+        $(this).parent().hide();
+    });
+});
+
+</script>

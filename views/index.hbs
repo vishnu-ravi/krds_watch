@@ -1,0 +1,209 @@
+<div class="container-fluid">
+    {{> nav this}}
+    <div class="row">
+        <input type="text" id="search_bar" placeholder="Search"/>
+        <span id="btn_search" class="pull-right glyphicon glyphicon-search"></span>
+    </div>
+    <div class="row">
+        {{#each posts}}
+            <div class="col-md-4 post">
+                <div class="well block">
+                    <div class="clearfix">
+                        <a href="/users/{{id_user._id}}">
+                            <img src="{{id_user.picture}}" alt="{{id_user.name}}" style="" class="img-thumbnail pull-left userImg" />
+                            <h4 class="pull-left">{{id_user.name}}</h4>
+
+                        </a>
+                        <span>{{description}}</span>
+                        <p>{{#each tags}} <a href="/home/search/tag/{{this}}">{{this}}</a>{{/each}}</p>
+                        <span class="pull-right glyphicon {{#if is_bookmarked}} glyphicon-star bookmarked {{else}} glyphicon-star-empty  bookmark {{/if}}" data-id_bookmark="{{id_bookmark}}" data-id_post="{{id_post}}"></span>
+                    </div>
+                    <div class="row">
+                        <a href="{{url}}" target="_blank">
+                            <div class="col-sm-4">
+                                <img src="{{image}}" alt="{{title}}" class="img-thumbnail img-responsive">
+                            </div>
+                            <div class="col-sm-8">
+                                <h3>{{title}}</h3>
+                                <p>{{preview_description}}</p>
+                            </div>
+                        </a>
+                        <div class="comments">
+                            {{#each comments}}
+                                <p>{{this.comment}} <span>Posted By {{this.id_user.name}} <img src="{{this.id_user.picture}}"/> {{this.date}}</span></p>
+                                {{#ifCond ../../user.id_user '==' this.id_user._id}}
+                                    <a href="#" class="btnCommentEdit glyphicon glyphicon-pencil" data-comment="{{this.comment}}" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{../../_id}}"></a>
+                                    <a href="#" class="btnCommentDelete glyphicon glyphicon-trash" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{../../_id}}" data-date="{{this.date}}"></a>
+                                {{/ifCond}}
+                            {{/each}}
+                        </div>
+                        <div class="postComment">
+                            <input type="text" class="comment"/>
+                            <a href="#" class="btnPostComment glyphicon glyphicon-ok" data-id_post="{{_id}}"></a>
+                        </div>
+                        <p>{{#each categories}} <a href="/home/search/category/{{this}}">{{this}}</a>{{/each}}</p>
+                    </div>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+</div>
+<div class="alert alert-success" id="alert_info" role="alert" style="display:none;"></div>
+<script>
+    function onLoad()
+    {
+        gapi.load('auth2', function() {
+          gapi.auth2.init();
+        });
+    }
+    $(document).ready(function()
+    {
+        var id_user =   "{{user.id_user}}";
+        $('#btn_logout').on('click', function()
+        {
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signOut().then(function () {
+              location.href =   '/logout'
+            });
+        });
+
+        $('body').on('click', '.bookmark', function(e)
+        {
+            e.preventDefault();
+            var $this   =   $(this);
+            $('body').addClass('loading');
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: '/bookmark',
+                dataType: 'json',
+                data: {
+                    id_user: id_user,
+                    id_post: $(this).data('id_post')
+                },
+                error: function(jXhr) {
+                    if(jXhr.status == 400 || jXhr.status == 500 || jXhr.status == 403)
+                        $('#alert_info').html(jXhr.msg).addClass('alert-error').show();
+                },
+                success: function(data) {
+                    $this.removeClass('bookmark glyphicon-star-empty').addClass('bookmarked glyphicon-star');
+                },
+                complete: function(){
+                    busy    =   false;
+                    $('body').removeClass('loading');
+                }
+            });
+        });
+
+        $('body').on('click', '.bookmarked', function(e)
+        {
+            e.preventDefault();
+            var $this   =   $(this);
+            $('body').addClass('loading');
+            $.ajax({
+                cache: false,
+                type: 'DELETE',
+                url: '/bookmark',
+                dataType: 'json',
+                data: {
+                    id_user: id_user,
+                    id_bookmark: $(this).data('id_bookmark')
+                },
+                error: function(jXhr) {
+                    if(jXhr.status == 400 || jXhr.status == 500 || jXhr.status == 403)
+                        $('#alert_info').html(jXhr.msg).addClass('alert-success').show();
+                },
+                success: function(data) {
+                    console.log(data);
+                    $this.removeClass('bookmarked glyphicon-star').addClass('bookmark glyphicon-star-empty');
+                },
+                complete: function(){
+                    busy    =   false;
+                    $('body').removeClass('loading');
+                }
+            });
+        });
+
+        $('#btn_search').on('click', function(e)
+        {
+            e.preventDefault();
+
+            if($.trim($('#search_bar').val()).length == 0)
+                return;
+
+            location.href =   '/home/search/keyword/' + $.trim($('#search_bar').val());
+        });
+
+        $('body').on('click', '.btnPostComment', function(e)
+        {
+            e.preventDefault();
+            var comment =   $.trim($(this).parent().find('.comment').val());
+            var id_post =   $(this).data('id_post');
+            var index   =   $(this).data('index');
+
+            var method  =   index ? 'put' : 'post';
+
+            if(comment.length == 0)
+                return;
+
+            $.ajax({
+                cache: false,
+                type: method,
+                url: '/post/comment',
+                dataType: 'json',
+                data: {
+                    'id_post': id_post,
+                    'index': index,
+                    'comment': comment,
+                    'id_user': id_user
+                },
+                error: function(jXhr) {
+                    if(jXhr.status == 400 || jXhr.status == 500)
+                        home.showError(jXhr.msg);
+                },
+                success: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+
+        $('body').on('click', '.btnCommentEdit', function(e)
+        {
+            e.preventDefault();
+
+            var index   =   $(this).data('index');
+            var comment =   $(this).data('comment');
+
+            $(this).parents('.row').find('.postComment .btnPostComment').data('index', index).attr('data-index', index);
+            $(this).parents('.row').find('.postComment .comment').val(comment);
+        });
+        $('body').on('click', '.btnCommentDelete', function(e)
+        {
+            e.preventDefault();
+            var id_post =   $(this).data('id_post');
+            var index   =   $(this).data('index');
+            var id      =   $(this).data('id');
+            var date      =   $(this).data('date');
+            $.ajax({
+                cache: false,
+                type: 'delete',
+                url: '/post/comment',
+                dataType: 'json',
+                data: {
+                    'id_post': id_post,
+                    'id': id,
+                    'index': index,
+                    'id_user': id_user,
+                    'date': date
+                },
+                error: function(jXhr) {
+                    if(jXhr.status == 400 || jXhr.status == 500)
+                        home.showError(jXhr.msg);
+                },
+                success: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+    });
+</script>

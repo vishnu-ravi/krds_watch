@@ -1,0 +1,22 @@
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="text-center">KRDS Watch</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="navUser col-md-3 pull-left">
+        <img src="{{user.picture}}" alt="{{user.name}}" class="img-thumbnail" />
+        <span><a href="/home/user/{{user.id_user}}" class="text-info">{{user.name}}</a></span>
+    </div>
+    <div class="user col-md-8">
+        <ul class="nav nav-pills">
+            {{#each tabs}}
+                <li role="presentation" class="{{active}}"><a href="/{{key}}">{{name}}</a></li>
+            {{/each}}
+        </ul>
+    </div>
+    <div class="pull-right col-md-1">
+        <button id="btn_logout" class="btn btn-primary"/><span class="glyphicon glyphicon-log-out"></span></button>
+    </div>
+</div>
+<hr>
