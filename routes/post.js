@@ -115,7 +115,17 @@ module.exports = function (app, tabs) {
 
     }).delete(function(req, res)
     {
+        var Posts   =   require('../models/posts.js');
+        var id_post    =   req.body.id_post;
 
+        Posts.find({_id: id_post}).remove().exec(function(err, data) {
+            if(err) {
+                res.status(500);
+                res.json({ msg: 'DB Error', 'error': err});
+            }
+            else
+                res.json({ msg: 'Post Successfully Deleted'});
+        });
     });
 
     app.route('/post/url').post(function (req, res)
@@ -144,11 +154,13 @@ module.exports = function (app, tabs) {
             if(error) {
                 res.status(400);
                 res.json({msg: error});
+                return;
             }
 
-            if(typeof metadata.general === undefined) {
+            if(metadata == null || typeof metadata.general === undefined) {
                 res.status(400);
                 res.json({msg: 'Invalid URL'});
+                return;
             }
 
             var title       =   metadata.general.title;

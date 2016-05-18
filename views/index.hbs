@@ -1,51 +1,11 @@
 <div class="container-fluid">
-    {{> nav this}}
+    {{> nav this.data}}
     <div class="row">
         <input type="text" id="search_bar" placeholder="Search"/>
         <span id="btn_search" class="pull-right glyphicon glyphicon-search"></span>
     </div>
-    <div class="row">
-        {{#each posts}}
-            <div class="col-md-4 post">
-                <div class="well block">
-                    <div class="clearfix">
-                        <a href="/users/{{id_user._id}}">
-                            <img src="{{id_user.picture}}" alt="{{id_user.name}}" style="" class="img-thumbnail pull-left userImg" />
-                            <h4 class="pull-left">{{id_user.name}}</h4>
-
-                        </a>
-                        <span>{{description}}</span>
-                        <p>{{#each tags}} <a href="/home/search/tag/{{this}}">{{this}}</a>{{/each}}</p>
-                        <span class="pull-right glyphicon {{#if is_bookmarked}} glyphicon-star bookmarked {{else}} glyphicon-star-empty  bookmark {{/if}}" data-id_bookmark="{{id_bookmark}}" data-id_post="{{id_post}}"></span>
-                    </div>
-                    <div class="row">
-                        <a href="{{url}}" target="_blank">
-                            <div class="col-sm-4">
-                                <img src="{{image}}" alt="{{title}}" class="img-thumbnail img-responsive">
-                            </div>
-                            <div class="col-sm-8">
-                                <h3>{{title}}</h3>
-                                <p>{{preview_description}}</p>
-                            </div>
-                        </a>
-                        <div class="comments">
-                            {{#each comments}}
-                                <p>{{this.comment}} <span>Posted By {{this.id_user.name}} <img src="{{this.id_user.picture}}"/> {{this.date}}</span></p>
-                                {{#ifCond ../../user.id_user '==' this.id_user._id}}
-                                    <a href="#" class="btnCommentEdit glyphicon glyphicon-pencil" data-comment="{{this.comment}}" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{../../_id}}"></a>
-                                    <a href="#" class="btnCommentDelete glyphicon glyphicon-trash" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{../../_id}}" data-date="{{this.date}}"></a>
-                                {{/ifCond}}
-                            {{/each}}
-                        </div>
-                        <div class="postComment">
-                            <input type="text" class="comment"/>
-                            <a href="#" class="btnPostComment glyphicon glyphicon-ok" data-id_post="{{_id}}"></a>
-                        </div>
-                        <p>{{#each categories}} <a href="/home/search/category/{{this}}">{{this}}</a>{{/each}}</p>
-                    </div>
-                </div>
-            </div>
-        {{/each}}
+    <div class="row" id="feeds">
+        {{> post this.data}}
     </div>
 </div>
 <div class="alert alert-success" id="alert_info" role="alert" style="display:none;"></div>
@@ -56,9 +16,72 @@
           gapi.auth2.init();
         });
     }
+
+    var hold_scroll_handler =   true, page = 1, action  =   '/home';
+
+    var WALL    =   function() {
+        this.page                   =   1;
+        this.hold_scroll_handler    =   false;
+        this.action                 =   "{{action}}";
+        this.offset_bottom          =   106;
+        this.feedContainer          =   null;
+    };
+
+    WALL.prototype.init     =   function() {
+        var _this           =   this;
+        _this.feedContainer =   $('#feeds');
+
+        window.setInterval(function()
+        {
+            if(_this.hold_scroll_handler)
+                return;
+
+            if($(window).scrollTop() >= $(document).height() - $(window).height() - _this.offset_bottom)
+            {
+                _this.hold_scroll_handler    =    true;
+                _this.page                   +=   1;
+
+                _this.getPosts();
+            }
+        });
+    };
+
+    WALL.prototype.addToWall    =   function(item) {
+        $('#feeds').append(item);
+    };
+
+    WALL.prototype.getPosts     =   function() {
+        var _this   =   this;
+        $.ajax({
+            url		 :	this.action,
+            type	 :	'GET',
+            data	 :	{
+                page: this.page
+            },
+            dataType :	'json',
+            cache	 :	false,
+            success	 :  function(data)
+            {
+                _this.addToWall(data.html);
+
+                if(data.is_next_page == 0)
+                    _this.hold_scroll_handler   =   true;
+                else
+                    _this.hold_scroll_handler   =   false;
+            },
+            error: function(response)
+            {
+
+            }
+        });
+    };
+
+    var wall    =   new WALL();
     $(document).ready(function()
     {
-        var id_user =   "{{user.id_user}}";
+        var id_user =   "{{data.user.id_user}}";
+
+        wall.init();
         $('#btn_logout').on('click', function()
         {
             var auth2 = gapi.auth2.getAuthInstance();
@@ -177,6 +200,36 @@
             $(this).parents('.row').find('.postComment .btnPostComment').data('index', index).attr('data-index', index);
             $(this).parents('.row').find('.postComment .comment').val(comment);
         });
+
+        $('body').on('click', '.editHandler', function(e)
+        {
+            e.preventDefault();
+
+            $(this).parent().find('.editContainer').toggle();
+        });
+
+        $('body').on('click', '.btnPostDelete', function(e)
+        {
+            e.preventDefault();
+
+            $.ajax({
+                cache: false,
+                type: 'delete',
+                url: '/post',
+                dataType: 'json',
+                data: {
+                    'id_post': $(this).data('id_post'),
+                },
+                error: function(jXhr) {
+                    if(jXhr.status == 400 || jXhr.status == 500)
+                        console.log(jXhr.msg);
+                },
+                success: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+
         $('body').on('click', '.btnCommentDelete', function(e)
         {
             e.preventDefault();

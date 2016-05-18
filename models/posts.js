@@ -1,5 +1,4 @@
 var mongoose            =   require("mongoose");
-var mongoose_paginate   =   require('mongoose-paginate');
 var Schema              =   mongoose.Schema;
 var ObjectId            =   Schema.ObjectId;
 
@@ -20,8 +19,6 @@ var postSchema          =   new Schema({
         date: {type: Date}
     }]
 }, {timestamps: {createdAt: 'date_posted', updatedAt: 'date_edited'}});
-
-postSchema.plugin(mongoose_paginate);
 
 postSchema.virtual('id_post').get(function(){
     return this._id;

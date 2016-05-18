@@ -1,10 +1,13 @@
 module.exports = function ( app, tabs ) {
-
+    var item_per_page   =   10;
     app.route(['/home', '/']).get(function (req, res) {
         var email   =   req.session.email;
         var layout  =   'login';
         var data    =   {};
-        var page    =   typeof req.params.page == 'undefine' ? 1 : req.params.page;
+
+        var page    =   typeof req.query.page == 'undefined' ? 1 : req.query.page;
+        var is_ajax =   req.xhr;
+
         Object.keys(tabs).forEach(function(key) {
             tabs[key].active    =   '';
         });
@@ -13,7 +16,7 @@ module.exports = function ( app, tabs ) {
 
         if(typeof email !== 'undefined') {
             var Users   =   require('../models/users.js');
-
+            require('mongoose-pagination');
             Users.findOne({email: email}, function(err, user)
             {
                 if( ! err)
@@ -28,37 +31,40 @@ module.exports = function ( app, tabs ) {
                 data.tabs   =   tabs;
 
                 var Posts   =   require('../models/posts.js');
-                Posts.paginate({}, page, limit, function(error, pageCount, posts, itemCount) {
-                    if(error) {
-                        console.log(error);
-                    }
-                    else {
-                        console.log(posts);
-                    }
-                }, {columns: {}, populate: ['id_user', 'comments.id_user']});
 
-                Posts.find({})
-                    .populate('id_user')
-                    .populate('comments.id_user')
-                    .exec(function(error, posts) {
-                        if(user.bookmarks.length) {
-                            var i = 0;
-                            posts.forEach(function(post) {
-                                user.bookmarks.forEach(function(bookmark) {
-                                    if(bookmark.id_post.toString() == post.id_post.toString()) {
-                                        posts[i].is_bookmarked    =   true;
-                                        posts[i].id_bookmark    =   bookmark._id;
-                                        return;
-                                    }
-                                });
-                                i++;
+                Posts.find({}).paginate(page, item_per_page).populate('id_user').populate('comments.id_user').exec(function(err, posts) {
+                    if(user.bookmarks.length) {
+                        var i = 0;
+                        posts.forEach(function(post) {
+                            user.bookmarks.forEach(function(bookmark) {
+                                if(bookmark.id_post.toString() == post.id_post.toString()) {
+                                    posts[i].is_bookmarked    =   true;
+                                    posts[i].id_bookmark    =   bookmark._id;
+                                    return;
+                                }
                             });
-                        }
-                        data.posts  =   posts;
+                            i++;
+                        });
+                    }
+                    data.posts  =   posts;
 
-                        //res.json(data.posts);
-                        res.render(layout, data);
-                    });
+                    if(is_ajax)
+                    {
+                        var renderedViews   =   {};
+                        res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
+                        {
+                            renderedViews.html  =   html;
+                            renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
+
+                            res.json(renderedViews);
+                        });
+                    }
+                    else
+                    {
+                        data.action =   '/home';
+                        res.render(layout, {data: data});
+                    }
+                });
             });
         }
         else {
@@ -75,11 +81,12 @@ module.exports = function ( app, tabs ) {
 
     app.route('/home/search/:type/:key').get(function (req, res)
     {
-        var Users = require('../models/users.js');
-        var data  = {};
-
+        var Users   =   require('../models/users.js');
+        var data    =   {};
+        var is_ajax =   req.xhr;
         var email   =   req.session.email;
-        var page    =   typeof req.params.page == 'undefine' ? 1 : req.params.page;
+        var page    =   typeof req.query.page == 'undefined' ? 1 : req.query.page;
+
         var layout  =    'login';
         Object.keys(tabs).forEach(function(key) {
             tabs[key].active    =   '';
@@ -89,7 +96,8 @@ module.exports = function ( app, tabs ) {
 
         if(typeof email !== 'undefined')
         {
-            var Users = require('../models/users.js');
+            require('mongoose-pagination');
+            var Users   =   require('../models/users.js');
             Users.findOne({email: email}, function(err, user)
             {
                 if( ! err)
@@ -105,6 +113,7 @@ module.exports = function ( app, tabs ) {
                 var Posts   =   require('../models/posts.js');
                 if(req.params.type == 'tag') {
                     Posts.find({ tags: req.params.key })
+                        .paginate(page, item_per_page)
                         .populate('id_user')
                         .populate('comments.id_user')
                         .exec(function(error, posts) {
@@ -122,12 +131,28 @@ module.exports = function ( app, tabs ) {
                                 });
                             }
                             data.posts  =   posts;
-                            //res.json(data.posts);
-                            res.render(layout, data);
+
+                            if(is_ajax)
+                            {
+                                var renderedViews   =   {};
+                                res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
+                                {
+                                    renderedViews.html  =   html;
+                                    renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
+
+                                    res.json(renderedViews);
+                                });
+                            }
+                            else
+                            {
+                                data.action =   req.url;
+                                res.render(layout, {data: data});
+                            }
                         });
                 }
                 else if(req.params.type == 'category') {
                     Posts.find({ categories: req.params.key })
+                        .paginate(page, item_per_page)
                         .populate('id_user')
                         .populate('comments.id_user')
                         .exec(function(error, posts) {
@@ -145,19 +170,35 @@ module.exports = function ( app, tabs ) {
                                 });
                             }
                             data.posts  =   posts;
-                            //res.json(data.posts);
-                            res.render(layout, data);
+                            if(is_ajax)
+                            {
+                                var renderedViews   =   {};
+                                res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
+                                {
+                                    renderedViews.html  =   html;
+                                    renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
+
+                                    res.json(renderedViews);
+                                });
+                            }
+                            else
+                            {
+                                data.action =   req.url;
+                                res.render(layout, {data: data});
+                            }
                         });
                 }
                 else if(req.params.type == 'keyword') {
-                    var to_search   =   new RegExp('^'+ req.params.key + '$', "i");
+                    var search      =   req.params.key;
 
                     Posts.find({
-                         $or: [
-                             { categories:  to_search},
-                             {tags: to_search}
-                         ]
-                     })
+                             $or: [
+                                 {categories: {'$regex': search}},
+                                 {tags: {'$regex': search}},
+                                 {description: {'$regex': search}}
+                             ]
+                         })
+                        .paginate(page, item_per_page)
                         .populate('id_user')
                         .populate('comments.id_user')
                         .exec(function(error, posts) {
@@ -166,7 +207,7 @@ module.exports = function ( app, tabs ) {
                                 posts.forEach(function(post) {
                                     user.bookmarks.forEach(function(bookmark) {
                                         if(bookmark.id_post.toString() == post.id_post.toString()) {
-                                            posts[i].is_bookmarked    =   true;
+                                            posts[i].is_bookmarked  =   true;
                                             posts[i].id_bookmark    =   bookmark._id;
                                             return;
                                         }
@@ -175,8 +216,22 @@ module.exports = function ( app, tabs ) {
                                 });
                             }
                             data.posts  =   posts;
-                            //res.json(data.posts);
-                            res.render(layout, data);
+                            if(is_ajax)
+                            {
+                                var renderedViews   =   {};
+                                res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
+                                {
+                                    renderedViews.html  =   html;
+                                    renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
+
+                                    res.json(renderedViews);
+                                });
+                            }
+                            else
+                            {
+                                data.action =   req.url;
+                                res.render(layout, {data: data});
+                            }
                         });
                 }
                 else {
