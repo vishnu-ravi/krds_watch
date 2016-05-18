@@ -9,10 +9,12 @@
   "dependencies": {
     "body-parser": "~1.14.2",
     "express": "~4.13.4",
-    "express3-handlebars": "~0.5.2",
+    "express-handlebars": "3.0.0",
     "mongoose": "~4.3.7",
     "mongoose-paginate": "5.0.0",
     "path": "~0.12.7",
-    "promise": "^7.1.1"
+    "promise": "^7.1.1",
+    "express-session": "1.13.0",
+    "html-metadata": "1.4.1"
   }
 }

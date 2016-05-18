@@ -1,5 +1,5 @@
 var express     =   require('express'), mongoose = require("mongoose"), path = require('path');
-var expressHbs  =   require('express3-handlebars');
+var expressHbs  =   require('express-handlebars');
 var session     =   require('express-session');
 var bodyParser  =   require("body-parser");
 var app         =   express();

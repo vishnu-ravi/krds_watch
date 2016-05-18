@@ -2,7 +2,7 @@ module.exports = function ( app, tabs ) {
 
     app.route(['/home', '/']).get(function (req, res) {
         var email   =   req.session.email;
-        var layout  =    'login';
+        var layout  =   'login';
         var data    =   {};
         var page    =   typeof req.params.page == 'undefine' ? 1 : req.params.page;
         Object.keys(tabs).forEach(function(key) {
@@ -12,7 +12,7 @@ module.exports = function ( app, tabs ) {
         tabs[0].active  =   'active';
 
         if(typeof email !== 'undefined') {
-            var Users = require('../models/users.js');
+            var Users   =   require('../models/users.js');
 
             Users.findOne({email: email}, function(err, user)
             {
@@ -28,6 +28,15 @@ module.exports = function ( app, tabs ) {
                 data.tabs   =   tabs;
 
                 var Posts   =   require('../models/posts.js');
+                Posts.paginate({}, page, limit, function(error, pageCount, posts, itemCount) {
+                    if(error) {
+                        console.log(error);
+                    }
+                    else {
+                        console.log(posts);
+                    }
+                }, {columns: {}, populate: ['id_user', 'comments.id_user']});
+
                 Posts.find({})
                     .populate('id_user')
                     .populate('comments.id_user')
@@ -46,7 +55,7 @@ module.exports = function ( app, tabs ) {
                             });
                         }
                         data.posts  =   posts;
-                        console.log(posts[0]);
+
                         //res.json(data.posts);
                         res.render(layout, data);
                     });
@@ -142,7 +151,7 @@ module.exports = function ( app, tabs ) {
                 }
                 else if(req.params.type == 'keyword') {
                     var to_search   =   new RegExp('^'+ req.params.key + '$', "i");
-                    console.log(to_search);
+
                     Posts.find({
                          $or: [
                              { categories:  to_search},
@@ -182,25 +191,25 @@ module.exports = function ( app, tabs ) {
 
     app.route('/users/:id_user').get(function (req, res)
     {
-        var Users = require('../models/users.js');
-        var data  = {};
+        var Users   =   require('../models/users.js');
+        var data    =   {};
 
         var email   =   req.session.email;
-        var layout  =    'login';
+        var layout  =   'login';
         var page    =   typeof req.params.page == 'undefine' ? 1 : req.params.page;
+
         Object.keys(tabs).forEach(function(key) {
             tabs[key].active    =   '';
         });
 
         tabs[0].active  =   'active';
 
-        if(typeof email !== 'undefined' || typeof req.params.id_user == 'undefined')
-        {
-            var Users = require('../models/users.js');
+        if(typeof email !== 'undefined' || typeof req.params.id_user == 'undefined') {
+            var Users   =   require('../models/users.js');
+
             Users.findOne({email: email}, function(err, user)
             {
-                if( ! err)
-                {
+                if( ! err) {
                     layout      =   'index';
                     data.user   =   user;
 
@@ -246,8 +255,7 @@ module.exports = function ( app, tabs ) {
             {$push: {"comments": {id_user: req.body.id_user, comment: req.body.comment, date: Date.now()}}},
             {safe: true, upsert: true, new : true},
             function(err, model) {
-                if(err)
-                {
+                if(err) {
                     res.status(500);
                     res.json({ msg: 'DB Error', 'error': err});
                 }
@@ -277,36 +285,15 @@ module.exports = function ( app, tabs ) {
     }).delete(function (req, res) {
         var Posts   =   require('../models/posts.js');
 
-        /*var update = {};
-        update['comments.' + req.body.index]      =   1;
-        Posts.findByIdAndUpdate(req.body.id_post, {$unset: update}, {safe: true, upsert: true, new : true},
-        function(){
-            Posts.findByIdAndUpdate(req.body.id_post,
-                {$pull: {"comments" : null}},
-                function(err, model) {
-                    if(err)
-                    {
-                        res.status(500);
-                        res.json({ msg: 'DB Error', 'error': err});
-                    }
-                    else
-                        res.json({ msg: 'Successfully Deleted'});
-            });
-        });*/
-        console.log(req.body.id);
-        //Posts.update({_id: req.body.id_post}, {$pullAll: {}}
         Posts.findByIdAndUpdate(req.body.id_post, {$pull: {'comments': {_id: req.body.id}}}, function(err, model) {
-            if(err)
-            {
+            if(err) {
                 res.status(500);
                 res.json({ msg: 'DB Error', 'error': err});
             }
             else
-            {console.log(model);
+            {
                 res.json({ msg: 'Successfully Deleted'});
-
             }
-
         });
     });
 }

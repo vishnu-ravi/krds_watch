@@ -1,7 +1,9 @@
-var mongoose    =   require("mongoose");
-var Schema      =   mongoose.Schema;
-var ObjectId    =   Schema.ObjectId;
-var postSchema  =   new Schema({
+var mongoose            =   require("mongoose");
+var mongoose_paginate   =   require('mongoose-paginate');
+var Schema              =   mongoose.Schema;
+var ObjectId            =   Schema.ObjectId;
+
+var postSchema          =   new Schema({
     id_user: {type: mongoose.Schema.Types.ObjectId, ref: 'Users'},
     description: {type: String},
     is_highlighted: {type: Boolean, default: 0},
@@ -18,6 +20,8 @@ var postSchema  =   new Schema({
         date: {type: Date}
     }]
 }, {timestamps: {createdAt: 'date_posted', updatedAt: 'date_edited'}});
+
+postSchema.plugin(mongoose_paginate);
 
 postSchema.virtual('id_post').get(function(){
     return this._id;

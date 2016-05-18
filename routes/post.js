@@ -85,7 +85,7 @@ module.exports = function (app, tabs) {
                     }
                 }
             }
-            console.log(tags_to_insert);
+
             if(tags_to_insert.length)
                 Tags.collection.insert(tags_to_insert, function(){});
 
@@ -124,35 +124,38 @@ module.exports = function (app, tabs) {
         var expression  =   /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
         var regex       =   new RegExp(expression);
 
-        if( ! url.match(regex))
-        {
+        if( ! url.match(regex)) {
             res.status(400);
             res.json({msg:'Invalid Url'});
         }
 
-        var scrape = require('html-metadata');
-        var request = require('request');
+        var scrape      =   require('html-metadata');
+        var request     =   require('request');
 
-        var options =  {
+        var options     =   {
     		url: url,
     		jar: request.jar(), // Cookie jar
     		headers: {
-    			'User-Agent': 'webscraper'
+			    'User-Agent': 'webscraper'
             }
         };
 
         scrape(options, function(error, metadata){
-            if(error)
-            {
+            if(error) {
                 res.status(400);
                 res.json({msg: error});
             }
-            var title   =   metadata.general.title;
+
+            if(typeof metadata.general === undefined) {
+                res.status(400);
+                res.json({msg: 'Invalid URL'});
+            }
+
+            var title       =   metadata.general.title;
             var description =   metadata.general.description;
             var image       =   null;
 
-            if('openGraph' in metadata)
-            {
+            if('openGraph' in metadata) {
                 if( ! title && 'title' in metadata.openGraph)
                     title   =   metadata.openGraph.title;
 
@@ -173,6 +176,7 @@ module.exports = function (app, tabs) {
 
             if( ! image || image.match(/\.(jpeg|jpg|gif|png)/) == null)
                 image   =   '/images/setting_icon.png';
+
         	res.json({title: title, description: description, image: image, metadata: metadata});
         });
     });

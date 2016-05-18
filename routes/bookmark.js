@@ -4,8 +4,7 @@ module.exports  =   function ( app, tabs) {
     app.route('/bookmark').get(function (req, res) {
         var email   =   req.session.email;
 
-        if(typeof email === 'undefined')
-        {
+        if(typeof email === 'undefined') {
             res.redirect('/');
             return;
         }
@@ -13,8 +12,7 @@ module.exports  =   function ( app, tabs) {
         var data    =   {};
         Users.findOne({email: email}, function(err, user)
         {
-            if( ! err)
-            {
+            if( ! err) {
                 data.user   =   user;
 
                 if(user.is_admin)
@@ -24,11 +22,12 @@ module.exports  =   function ( app, tabs) {
             Object.keys(tabs).forEach(function(key) {
                 tabs[key].active    =   '';
             });
+
             tabs[1].active  =   'active';
-            data.tabs   =   tabs;
-            var Posts   =   require('../models/posts.js');
-            if(user.bookmarks.length)
-            {
+            data.tabs       =   tabs;
+            var Posts       =   require('../models/posts.js');
+
+            if(user.bookmarks.length) {
                 var id_posts    =   [];
                 user.bookmarks.forEach(function(bookmark)
                 {
