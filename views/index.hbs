@@ -8,7 +8,18 @@
         {{> post this.data}}
     </div>
 </div>
-<div class="alert alert-success" id="alert_info" role="alert" style="display:none;"></div>
+<div id="modal_post" class="modal" style="display:none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body" id="modal_body"></div>
+        </div>
+    </div>
+</div>
+<div class="alert alert-success" id="alert_success" role="alert" style="display:none;"></div>
+<div class="alert alert-danger" id="alert_error" role="alert" style="display:none;"></div>
 <script>
     function onLoad()
     {
@@ -18,6 +29,7 @@
     }
 
     var hold_scroll_handler =   true, page = 1, action  =   '/home';
+    var timeout;
 
     var WALL    =   function() {
         this.page                   =   1;
@@ -76,6 +88,39 @@
         });
     };
 
+    WALL.prototype.getComments  =   function(id_post) {
+        var _this   =   this;
+
+        if(typeof id_post === undefined)
+            return;
+
+        var url =   '/comment/' + id_post;
+
+        $.ajax({
+            url		 :	url,
+            type	 :	'GET',
+            dataType :	'json',
+            cache	 :	false,
+            success	 :  function(data)
+            {
+                $('#modal_post').find('.comments').empty().html(data.html);
+            },
+            error: function(jXhr)
+            {
+                if(jXhr.status == 400 || jXhr.status == 500 || jXhr.status == 403)
+                    _this.showMessage('error', jXhr.msg);
+            }
+        });
+    };
+
+    WALL.prototype.showMessage   =   function(type, msg) {
+        if(typeof timeout != 'undefined')
+            clearTimeout(timeout);
+        var $element =   type == 'success' ? $('#alert_success') : $('#alert_error');
+        $element.html(msg).css('display', 'block');
+        timeout    =    setTimeout(function(){ $element.css('display', 'none'); }, 4000);
+    };
+
     var wall    =   new WALL();
     $(document).ready(function()
     {
@@ -84,6 +129,8 @@
         wall.init();
         $('#btn_logout').on('click', function()
         {
+            $('body').addClass('loading');
+
             var auth2 = gapi.auth2.getAuthInstance();
             auth2.signOut().then(function () {
               location.href =   '/logout'
@@ -94,7 +141,9 @@
         {
             e.preventDefault();
             var $this   =   $(this);
+            var id_post =   $(this).data('id_post');
             $('body').addClass('loading');
+
             $.ajax({
                 cache: false,
                 type: 'POST',
@@ -106,10 +155,13 @@
                 },
                 error: function(jXhr) {
                     if(jXhr.status == 400 || jXhr.status == 500 || jXhr.status == 403)
-                        $('#alert_info').html(jXhr.msg).addClass('alert-error').show();
+                        wall.showMessage('error', jXhr.msg);
                 },
                 success: function(data) {
-                    $this.removeClass('bookmark glyphicon-star-empty').addClass('bookmarked glyphicon-star');
+                    wall.showMessage('success', data.msg);
+
+                    $('.bookmark[data-id_post="' + id_post + '"]').removeClass('bookmark glyphicon-star-empty').addClass('bookmarked glyphicon-star')
+                        .data('id_bookmark', data.id_bookmark).attr('data-id_bookmark', data.id_bookmark);
                 },
                 complete: function(){
                     busy    =   false;
@@ -121,7 +173,8 @@
         $('body').on('click', '.bookmarked', function(e)
         {
             e.preventDefault();
-            var $this   =   $(this);
+            var $this       =   $(this);
+            var id_bookmark =   $(this).data('id_bookmark');
             $('body').addClass('loading');
             $.ajax({
                 cache: false,
@@ -130,15 +183,19 @@
                 dataType: 'json',
                 data: {
                     id_user: id_user,
-                    id_bookmark: $(this).data('id_bookmark')
+                    id_bookmark: id_bookmark
                 },
                 error: function(jXhr) {
                     if(jXhr.status == 400 || jXhr.status == 500 || jXhr.status == 403)
-                        $('#alert_info').html(jXhr.msg).addClass('alert-success').show();
+                        wall.showMessage('error', jXhr.msg);
                 },
                 success: function(data) {
-                    console.log(data);
-                    $this.removeClass('bookmarked glyphicon-star').addClass('bookmark glyphicon-star-empty');
+                    wall.showMessage('success', data.msg);
+
+                    $('.bookmarked[data-id_bookmark="' + id_bookmark + '"]')
+                        .removeClass('bookmarked glyphicon-star').addClass('bookmark glyphicon-star-empty')
+                        .data('id_bookmark', '')
+                        .removeAttr('data-id_bookmark');
                 },
                 complete: function(){
                     busy    =   false;
@@ -153,7 +210,7 @@
 
             if($.trim($('#search_bar').val()).length == 0)
                 return;
-
+            $('body').addClass('loading');
             location.href =   '/home/search/keyword/' + $.trim($('#search_bar').val());
         });
 
@@ -164,10 +221,12 @@
             var id_post =   $(this).data('id_post');
             var index   =   $(this).data('index');
 
-            var method  =   index ? 'put' : 'post';
+            var method  =   $(this).data('is_edit') == true ? 'put' : 'post';
 
             if(comment.length == 0)
                 return;
+
+            var $this   =   $(this);
 
             $.ajax({
                 cache: false,
@@ -182,10 +241,13 @@
                 },
                 error: function(jXhr) {
                     if(jXhr.status == 400 || jXhr.status == 500)
-                        home.showError(jXhr.msg);
+                        wall.showMessage('error', jXhr.msg);
                 },
                 success: function(data) {
-                    console.log(data);
+                    wall.showMessage('success', data.msg);
+                    $this.data('is_edit', false).removeAttr('data-is_edit');
+                    $this.parents('.postComment').find('.comment').val('');
+                    wall.getComments(id_post);
                 }
             });
         });
@@ -198,6 +260,7 @@
             var comment =   $(this).data('comment');
 
             $(this).parents('.row').find('.postComment .btnPostComment').data('index', index).attr('data-index', index);
+            $(this).parents('.row').find('.postComment .btnPostComment').data('is_edit', true).attr('data-is_edit', true);
             $(this).parents('.row').find('.postComment .comment').val(comment);
         });
 
@@ -222,17 +285,30 @@
                 },
                 error: function(jXhr) {
                     if(jXhr.status == 400 || jXhr.status == 500)
-                        console.log(jXhr.msg);
+                        wall.showMessage('error', jXhr.msg);
                 },
                 success: function(data) {
-                    console.log(data);
+                    wall.showMessage('success', data.msg);
+
+                    setTimeout(function() {
+                        $('body').addClass('loading');
+                        location.href   =   '/home';
+                    }, 3000);
                 }
             });
+        });
+
+        $('body').on('click', '.btnPostEdit', function(e)
+        {
+            e.preventDefault();
+            $('body').addClass('loading');
+            location.href =   '/post?id_post=' + $(this).data('id_post');
         });
 
         $('body').on('click', '.btnCommentDelete', function(e)
         {
             e.preventDefault();
+
             var id_post =   $(this).data('id_post');
             var index   =   $(this).data('index');
             var id      =   $(this).data('id');
@@ -251,12 +327,25 @@
                 },
                 error: function(jXhr) {
                     if(jXhr.status == 400 || jXhr.status == 500)
-                        home.showError(jXhr.msg);
+                        wall.showMessage('error', jXhr.msg);
                 },
                 success: function(data) {
-                    console.log(data);
+                    wall.showMessage('success', data.msg);
+                    wall.getComments(id_post);
                 }
             });
+        });
+
+        $('body').on('click', '.btnComment', function(e)
+        {
+            e.preventDefault();
+
+            var html    =   $(this).parents('.post').html();
+
+            $('#modal_post #modal_body').empty().html(html);
+            $('#modal_post').find('.blockCommentBtn').hide()
+            $('#modal_post').find('.blockComment').show();
+            $('#modal_post').modal('show');
         });
     });
 </script>

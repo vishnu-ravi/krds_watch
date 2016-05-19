@@ -36,6 +36,7 @@ require('./routes')(app, tabs);
 require('./routes/user.js')(app);
 require('./routes/post.js')(app, tabs);
 require('./routes/bookmark.js')(app, tabs);
+require('./routes/comment.js')(app);
 
 var port    =   process.env.PORT || 3000;
 var server = app.listen(port);

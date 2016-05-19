@@ -53,11 +53,11 @@ module.exports  =   function ( app, tabs) {
                         });
                         data.posts  =   posts;
                         //res.json(data.posts);
-                        res.render('index', data);
+                        res.render('index', {data: data});
                 });
             }
             else {
-                res.render('empty_bookmark', data);
+                res.render('empty_bookmark', {data: data});
             }
 
         });
@@ -74,7 +74,11 @@ module.exports  =   function ( app, tabs) {
                     res.json({ msg: 'DB Error', 'error': err});
                 }
                 else
-                    res.json({ msg: 'Successfully Created'});
+                {
+                    var index    =  model.bookmarks.length - 1;
+                    res.json({ msg: 'Bookmark Successfully Added', id_bookmark: model.bookmarks[index]._id});
+                }
+
             }
         );
     }).delete(function(req, res)
@@ -89,7 +93,7 @@ module.exports  =   function ( app, tabs) {
                     res.json({ msg: 'DB Error', 'error': err});
                 }
                 else
-                    res.json({ msg: 'Successfully Created'});
+                    res.json({ msg: 'Bookmark Successfully Deleted'});
             }
         );
     });

@@ -32,7 +32,8 @@ module.exports = function ( app, tabs ) {
 
                 var Posts   =   require('../models/posts.js');
 
-                Posts.find({}).paginate(page, item_per_page).populate('id_user').populate('comments.id_user').exec(function(err, posts) {
+                Posts.find({}).paginate(page, item_per_page).populate('id_user').populate('comments.id_user')
+                .exec(function(err, posts) {
                     if(user.bookmarks.length) {
                         var i = 0;
                         posts.forEach(function(post) {
@@ -235,7 +236,7 @@ module.exports = function ( app, tabs ) {
                         });
                 }
                 else {
-                    res.render('error');
+                    res.render('error', {data: data});
                 }
             });
         }
@@ -294,7 +295,7 @@ module.exports = function ( app, tabs ) {
                         }
                         data.posts  =   posts;
                         //res.json(data.posts);
-                        res.render(layout, data);
+                        res.render(layout, {data: data});
                     });
             });
         }
@@ -327,7 +328,7 @@ module.exports = function ( app, tabs ) {
 
         Posts.findByIdAndUpdate(req.body.id_post,
             {$set: update},
-            {safe: true, upsert: true, new : true},
+            {safe: true, upsert: true},
             function(err, model) {
                 if(err)
                 {
@@ -335,7 +336,7 @@ module.exports = function ( app, tabs ) {
                     res.json({ msg: 'DB Error', 'error': err});
                 }
                 else
-                    res.json({ msg: 'Successfully Updated'});
+                    res.json({ msg: 'Comment Successfully Updated'});
         });
     }).delete(function (req, res) {
         var Posts   =   require('../models/posts.js');
@@ -347,7 +348,7 @@ module.exports = function ( app, tabs ) {
             }
             else
             {
-                res.json({ msg: 'Successfully Deleted'});
+                res.json({ msg: 'Comment Successfully Deleted'});
             }
         });
     });

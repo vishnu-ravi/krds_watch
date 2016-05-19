@@ -1,3 +1,4 @@
-<div class="container-fluid">
-    <div class="alert alert-error" id="alert_info" role="alert">Somthing Went Wrong</div>
+<div class="container-fluid containerError">
+    {{> nav this.data}}
+    <div class="alert alert-error" id="alert_info" role="alert">Somthing Went Wrong {{#if data}} <p>Error: {{data}}</p> {{/if}}</div>
 </div>

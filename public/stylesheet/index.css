@@ -16,6 +16,10 @@ html, body {
     bottom: 10px;
 }
 
+.containerError .alert {
+    bottom: 50%;
+}
+
 .navUser img {
     height: 50px;
 }

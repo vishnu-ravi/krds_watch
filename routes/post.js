@@ -1,9 +1,18 @@
 module.exports = function (app, tabs) {
     var Posts   =   require('../models/posts.js');
-
+    var q       =   require('q');
     app.route('/post').get(function (req, res)
     {
-        var email   =   req.session.email;
+        var email       =   req.session.email;
+        var id_post     =   req.query.id_post;
+        var data        =   {};
+
+        Object.keys(tabs).forEach(function(key) {
+            tabs[key].active    =   '';
+        });
+
+        tabs[2].active  =   'active';
+        data.tabs       =   tabs;
 
         if(typeof email === 'undefined')
         {
@@ -11,49 +20,58 @@ module.exports = function (app, tabs) {
             return;
         }
 
-        var Users = require('../models/users.js');
+        var Users       =   require('../models/users.js');
+        var Tags        =    require('../models/tags.js');
+        var Categories  =    require('../models/categories.js');
 
-        Users.findOne({email: email}, function(err, user)
-        {
-            if(err)
+        var promises    =   [
+            Users.findOne({email: email}).exec(),
+            Tags.find({}).exec(),
+            Categories.find({}).exec()
+        ];
+
+        if(typeof id_post !== undefined)
+            promises.push(Posts.findOne({_id: id_post}));
+
+        q.all(promises).then(function(results) {
+            var user        =   results[0];
+            var tags        =   results[1];
+            var categories  =   results[2];
+            var post;
+
+            if(typeof id_post !== undefined && typeof results[3] !== undefined)
+                post        =   results[3];
+
+            if(tags != null)
+                tags    =   Object.keys(tags).map(function (key) {return tags[key]['name']});
+            else
+                tags    =   [];
+
+            if(categories != null)
+                categories    =   Object.keys(categories).map(function (key) {return categories[key].name;});
+            else
+                categories    =   [];
+
+            data.user   =   user;
+            data.tags   =   tags;
+            data.categories =   categories;
+
+            if(typeof post !== undefined && post !== null && String(post.id_user) == String(user._id))
             {
-                res.status(500)
-                res.render('error');
+                data.post       =   post;
+                data.post_json  =   JSON.stringify(post);
             }
-            var Tags   =    require('../models/tags.js');
 
-            Object.keys(tabs).forEach(function(key) {
-                tabs[key].active    =   '';
-            });
-            tabs[2].active  =   'active';
-
-            Tags.find({}, function (err, tags) {
-                if(tags != null)
-                    tags    =   Object.keys(tags).map(function (key) {return tags[key]['name']});
-                else
-                    tags    =   [];
-
-                var Categories   =    require('../models/categories.js');
-
-                Categories.find({}, function (err, categories) {
-
-                    if(categories != null)
-                        categories    =   Object.keys(categories).map(function (key) {return categories[key].name;});
-                    else
-                        categories    =   [];
-
-                    var data    =   {};
-                    data.user   =   user;
-                    data.tabs   =   tabs;
-                    data.tags   =   tags;
-                    data.categories   =   categories;
-                    res.render('post', data);
-                });
-            });
-        });
+            res.render('post', data);
+        })
+        .catch(function(err) {
+            res.status(500);
+            data.err =  err;
+            res.render('error', {data: data});
+        })
+        .done();
     }).post(function(req, res)
     {
-        var Posts   =   require('../models/posts.js');
         var Tags    =   require('../models/tags.js');
         var tags_to_insert  =   [];
         var data    =   JSON.parse(req.body.data);
@@ -112,10 +130,66 @@ module.exports = function (app, tabs) {
         });
     }).put(function(req, res)
     {
+        var Tags    =   require('../models/tags.js');
+        var tags_to_insert  =   [];
+        var data    =   JSON.parse(req.body.data);
 
+        Tags.find({}, function (err, tags)
+        {
+            if(typeof data.tags != 'undefined')
+            {
+                var user_tags   =   data.tags;
+
+                if(typeof tags != 'undefine' && tags.length)
+                {
+                    var tags_arr = [];
+                    for (var i = 0; i < tags.length; i++) {
+                        tags_arr.push(tags[i].name);
+                    }
+
+                    for(var i in user_tags)
+                    {
+                        if(tags_arr.indexOf(user_tags[i]) == -1)
+                            tags_to_insert.push({name: user_tags[i]});
+                    }
+                }
+                else
+                {
+                    for(var i in user_tags)
+                    {
+                        tags_to_insert.push({name: user_tags[i]});
+                    }
+                }
+            }
+
+            if(tags_to_insert.length)
+                Tags.collection.insert(tags_to_insert, function(){});
+
+            var update = {};
+            update['description']           =   data.description;
+            update['url']                   =   data.url;
+            update['is_highlighted']        =   data.is_highlighted;
+            update['categories']            =   data.categories;
+            update['tags']                  =   data.tags;
+            update['title']                 =   data.title;
+            update['preview_description']   =   data.preview_description;
+            update['image']                 =   data.image;
+
+            Posts.findByIdAndUpdate(data.id_post,
+                {$set: update},
+                {safe: true},
+                function(err, model) {
+                    if(err)
+                    {
+                        res.status(500);
+                        res.json({ msg: 'DB Error', 'error': err});
+                    }
+                    else
+                        res.json({ msg: 'Successfully Updated'});
+            });
+        });
     }).delete(function(req, res)
     {
-        var Posts   =   require('../models/posts.js');
         var id_post    =   req.body.id_post;
 
         Posts.find({_id: id_post}).remove().exec(function(err, data) {

@@ -1,0 +1,7 @@
+{{#each post.comments}}
+    <p>{{this.comment}} <span>Posted By {{this.id_user.name}} <img src="{{this.id_user.picture}}"/> {{this.date}}</span></p>
+    {{#ifCond this.owner_id '==' this.id_user._id}}
+        <a href="#" class="btnCommentEdit glyphicon glyphicon-pencil" data-comment="{{this.comment}}" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{this.id_post}}"></a>
+        <a href="#" class="btnCommentDelete glyphicon glyphicon-trash" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{this.id_post}}" data-date="{{this.date}}"></a>
+    {{/ifCond}}
+{{/each}}

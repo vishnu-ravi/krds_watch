@@ -12,7 +12,7 @@
                 {{#ifCond ../user.id_user '==' this.id_user._id}}
                     <span class="glyphicon glyphicon-chevron-down editHandler"></span>
                     <div class="editContainer" style="display:none;">
-                        <a href="#" class="btnPostEdit">Edit</a>
+                        <a href="#" class="btnPostEdit" data-id_post="{{_id}}">Edit</a>
                         <a href="#" class="btnPostDelete" data-id_post="{{_id}}">Delete</a>
                     </div>
                 {{/ifCond}}
@@ -27,18 +27,23 @@
                         <p>{{preview_description}}</p>
                     </div>
                 </a>
-                <div class="comments">
-                    {{#each comments}}
-                        <p>{{this.comment}} <span>Posted By {{this.id_user.name}} <img src="{{this.id_user.picture}}"/> {{this.date}}</span></p>
-                        {{#ifCond ../../user.id_user '==' this.id_user._id}}
-                            <a href="#" class="btnCommentEdit glyphicon glyphicon-pencil" data-comment="{{this.comment}}" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{../../_id}}"></a>
-                            <a href="#" class="btnCommentDelete glyphicon glyphicon-trash" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{../../_id}}" data-date="{{this.date}}"></a>
-                        {{/ifCond}}
-                    {{/each}}
+                <div class="blockComment" style="display:none;">
+                    <div class="comments">
+                        {{#each comments}}
+                            <p>{{this.comment}} <span>Posted By {{this.id_user.name}} <img src="{{this.id_user.picture}}"/> {{this.date}}</span></p>
+                            {{#ifCond ../../user.id_user '==' this.id_user._id}}
+                                <a href="#" class="btnCommentEdit glyphicon glyphicon-pencil" data-comment="{{this.comment}}" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{../_id}}"></a>
+                                <a href="#" class="btnCommentDelete glyphicon glyphicon-trash" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{../_id}}" data-date="{{this.date}}"></a>
+                            {{/ifCond}}
+                        {{/each}}
+                    </div>
+                    <div class="postComment">
+                        <input type="text" class="comment"/>
+                        <a href="#" class="btnPostComment glyphicon glyphicon-ok" data-id_post="{{_id}}"></a>
+                    </div>
                 </div>
-                <div class="postComment">
-                    <input type="text" class="comment"/>
-                    <a href="#" class="btnPostComment glyphicon glyphicon-ok" data-id_post="{{_id}}"></a>
+                <div class="blockCommentBtn">
+                    <a href="#" class="btnComment"><span class="glyphicon glyphicon-comment"></span> Comment</a>
                 </div>
                 <p>{{#each categories}} <a href="/home/search/category/{{this}}">{{this}}</a>{{/each}}</p>
             </div>

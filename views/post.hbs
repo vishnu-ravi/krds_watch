@@ -7,13 +7,13 @@
             <div class="form-group row">
                 <label for="description" class="col-sm-4 form-control-label">Description</label>
                 <div class="col-sm-8">
-                    <input class="form-control" type="text" id="description" name="description" placeholder="Description"/>
+                    <input class="form-control" type="text" id="description" name="description" placeholder="Description" {{#if post}} value="{{post.description}}" {{/if}} />
                 </div>
             </div>
             <div class="form-group row">
                 <label for="url" class="col-sm-4 form-control-label">URL</label>
                 <div class="col-sm-8">
-                    <input class="form-control" type="text" id="url" name="url" placeholder="URL"/>
+                    <input class="form-control" type="text" id="url" name="url" placeholder="URL" {{#if post}} value="{{post.url}}" {{/if}}/>
                 </div>
             </div>
             <div class="form-group row defaultHidden" id="post_preview_container">
@@ -71,14 +71,36 @@
     var categories  =   "{{categories}}";
     var tags        =   "{{tags}}";
     var id_user     =   "{{user.id_user}}";
+    var json        =   "{{post_json}}";
+    var post_json;
+    var is_edit     =   false;
+    var id_post     =   null;
+    if(json != '')
+    {
+        post_json   =   json.replace(/\\n/g, "\\n")
+                           .replace(/\\'/g, "\\'")
+                           .replace(/\\"/g, '\\"')
+                           .replace(/\\&/g, "\\&")
+                           .replace(/\\r/g, "\\r")
+                           .replace(/\\t/g, "\\t")
+                           .replace(/\\b/g, "\\b")
+                           .replace(/\\f/g, "\\f")
+                           .replace(/[\u0000-\u0019]+/g,"")
+                           .replace(/&quot;/g,'"');
+        post_json   =   JSON.parse(post_json);
+    }
+
 
     categories      =   categories.split(',');
     tags            =   tags.split(',');
-    console.log(categories, tags);
+
+    var initialTags =   typeof post_json != 'undefined' ? post_json.tags : [];
+    var initalCategories    =   typeof post_json != 'undefined' ? post_json.categories : [];
+
     $(document).ready(function()
     {
         $('#tags').tagEditor({
-            initialTags: [],
+            initialTags: initialTags,
             delimiter: ', ', /* space and comma */
             placeholder: 'Enter Tags ...',
             autocomplete: {
@@ -87,9 +109,9 @@
                 source: tags
             },
         });
-        console.log(categories);
+
         $('#categories').tagEditor({
-            initialTags: [],
+            initialTags: initalCategories,
             delimiter: ', ', /* space and comma */
             placeholder: 'Enter Categories ...',
             forceLowercase: false,
@@ -158,9 +180,12 @@
         $('#btn_submit').on('click', function(e)
         {
             e.preventDefault();
+
             if(busy)
                 return;
+
             busy    =   true;
+
             try
             {
                 if($('#url').val().length == 0)
@@ -172,6 +197,7 @@
                 if($('#categories').tagEditor('getTags')[0].tags.length == 0)
                     throw {msg: 'No Category Selected'};
                 $('body').addClass('loading');
+
                 var data    =   {
                     id_user: id_user,
                     description: $.trim($('#description').val()),
@@ -183,22 +209,30 @@
                     preview_description: $('#preview_description').html(),
                     image: $('#preview_image').attr('src')
                 };
+
+                var method  =   is_edit ? 'PUT' : 'POST';
+
+                if(is_edit)
+                    data.id_post    =   id_post;
+
                 $.ajax({
                     cache: false,
-                    type: 'POST',
+                    type: method,
                     url: '/post/',
                     dataType: 'json',
                     data: {data: JSON.stringify(data)},
                     error: function(jXhr) {
                         if(jXhr.status == 400 || jXhr.status == 500 || jXhr.status == 403)
                             $('#alert_info').html(jXhr.msg).addClass('alert-error').show();
+
+                        $('body').removeClass('loading');    
                     },
                     success: function(data) {
-                        console.log(data);
+                        $('body').addClass('loading');
+                        location.href =   '/home';
                     },
                     complete: function(){
                         busy    =   false;
-                        $('body').removeClass('loading');
                     }
                 });
             }
@@ -210,5 +244,18 @@
                 $('#alert_info').html(e.msg).addClass('alert-error').show();
             }
         });
+
+        if(post_json != null)
+        {
+            if(post_json.is_highlighted)
+                $('#highlight_yes').prop('checked', true);
+            else
+                $('#highlight_no').prop('checked', true);
+
+            $('#url').trigger('keyup');
+
+            is_edit =   true;
+            id_post =   post_json._id;
+        }
     });
 </script>
