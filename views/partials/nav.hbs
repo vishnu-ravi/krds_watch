@@ -1,8 +1,17 @@
-<div class="row">
-    <div class="col-md-12">
-        <h1 class="text-center">KRDS Watch</h1>
-    </div>
-</div>
+<header class="mdl-layout__header">
+     <!-- Top row, always visible -->
+     <div class="mdl-layout__header-row">
+     <!-- Title -->
+        <span class="mdl-layout-title">KRDS Watch</span>
+        <!-- Tabs -->        
+        <nav class="mdl-navigation">
+            {{#each tabs}}
+                <a class="mdl-navigation__link {{active}}" href="/{{key}}">{{name}}</a>
+            {{/each}}
+        </nav>
+     </div>
+</header>
+
 <div class="row">
     <div class="navUser col-md-3 pull-left">
         <img src="{{user.picture}}" alt="{{user.name}}" class="img-thumbnail" />
