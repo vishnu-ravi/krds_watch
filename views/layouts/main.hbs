@@ -3,19 +3,31 @@
   <head>
     <meta charset="utf-8">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="google-signin-client_id" content="640464385073-dinae39hei1id2j9vb4h11h9jsu4udli.apps.googleusercontent.com">
     <title>KRDS Watch</title>
 	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
     <script src="/javascript/lib/jquery-1.11.3.min.js"></script>
-    <!-- link rel="stylesheet" href="/stylesheet/bootstrap.css" -->
-    <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.6/material.indigo-pink.min.css">
-    <script src="https://storage.googleapis.com/code.getmdl.io/1.0.6/material.min.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-
+    <!-- script id="google_script" src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script-->
+    <script>
+        // Asynchronously load the client library
+        (function() {
+            var po      =   document.createElement('script');
+            po.type     =   'text/javascript';
+            po.async    =   true;
+            po.src      =   'https://apis.google.com/js/platform.js';
+            po.onload   =   function() {
+                gapi.load('auth2', function() {
+                    gapi.auth2.init();
+                });
+            };
+            var s       =   document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(po, s);
+        })();
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/stylesheet/index.css">
-    <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
-
-    <!-- script src="/javascript/lib/bootstrap.min.js"></script -->
-    <meta name="google-signin-client_id" content="640464385073-dinae39hei1id2j9vb4h11h9jsu4udli.apps.googleusercontent.com">
   </head>
 <body>
     {{{ body }}}

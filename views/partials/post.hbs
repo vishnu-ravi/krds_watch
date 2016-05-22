@@ -1,22 +1,50 @@
 {{#each posts}}
-    <div class="col-md-4 post">
-        <div class="well block">
-            <div class="clearfix">
-                <a href="/users/{{id_user._id}}">
-                    <img src="{{id_user.picture}}" alt="{{id_user.name}}" style="" class="img-thumbnail pull-left userImg" />
-                    <h4 class="pull-left">{{id_user.name}}</h4>
-                </a>
-                <span>{{description}}</span>
-                <p>{{#each tags}} <a href="/home/search/tag/{{this}}">{{this}}</a>{{/each}}</p>
-                <span class="pull-right glyphicon {{#if is_bookmarked}} glyphicon-star bookmarked {{else}} glyphicon-star-empty  bookmark {{/if}}" data-id_bookmark="{{id_bookmark}}" data-id_post="{{id_post}}"></span>
+    <div class="col s12 m4 l3 post">
+        <div class="card small {{#if is_highlighted}} lime lighten-3 {{else}} blue lighten-5 {{/if}} hoverable">
+            <div class="card-content">
+                <span class="left postBookmarkIcon">
+                    {{#if is_bookmarked}}
+                        <i class="material-icons bookmarked" data-id_bookmark="{{id_bookmark}}" data-id_post="{{id_post}}">bookmark</i>
+                    {{else}}
+                        <i class="material-icons bookmark" data-id_bookmark="{{id_bookmark}}" data-id_post="{{id_post}}">bookmark_border</i>
+                    {{/if}}
+                </span>
                 {{#ifCond ../user.id_user '==' this.id_user._id}}
-                    <span class="glyphicon glyphicon-chevron-down editHandler"></span>
-                    <div class="editContainer" style="display:none;">
-                        <a href="#" class="btnPostEdit" data-id_post="{{_id}}">Edit</a>
-                        <a href="#" class="btnPostDelete" data-id_post="{{_id}}">Delete</a>
-                    </div>
+                    <ul id="editDropdown_{{_id}}" class="dropdown-content">
+                        <li><a href="#" class="btnPostEdit" data-id_post="{{_id}}">Edit</a></li>
+                        <li><a href="#" class="btnPostDelete" data-id_post="{{_id}}">Delete</a></li>
+                    </ul>
+                    <span class="right">
+                        <a class="dropdown-button" href="#" data-activates="editDropdown_{{_id}}"><i class="material-icons">expand_more</i></a>
+                    </span>
                 {{/ifCond}}
+                <a href="/users/{{id_user._id}}" class="">
+                    <span class="card-title valign-wrapper">
+                        <img src="{{id_user.picture}}" alt="{{id_user.name}}" class="userImg circle responsive-img z-depth-2" height="30px" width="30px" />
+                        <span style="font-size:15px;" class="userName">{{id_user.name}}</span>
+                    </span>
+                </a>
+                <p>{{#each tags}} <a href="/home/search/tag/{{this}}" class="chip">{{this}}</a>{{/each}}</p>
+                <p>{{description}}</p>
+                <p class="row">
+                    <a href="{{url}}" target="_blank">
+                        <span class="col s4" style="height:100px; background: url({{image}}) no-repeat center;"></span>
+                        <span class="col s8">
+                            <span class="truncate">{{title}}</span>
+                            <span class="customTruncate" style="">{{preview_description}}</span>
+                        </span>
+                    </a>
+                </p>
             </div>
+            <div class="card-action">
+                <span class="left" style="margin-left:5px;">{{#each categories}} <a href="/home/search/category/{{this}}" class="chip">{{this}}</a>{{/each}}</span>
+                <span class="btnComment right valign-wrapper" style="margin-top:5px;"><i class="material-icons">comment</i> Comments</span>
+            </div>
+        </div>
+    </div>
+    <!-- div class="col s4 post">
+        <div class="card small blue-grey darken-1">
+
             <div class="row">
                 <a href="{{url}}" target="_blank">
                     <div class="col-sm-4">
@@ -48,5 +76,5 @@
                 <p>{{#each categories}} <a href="/home/search/category/{{this}}">{{this}}</a>{{/each}}</p>
             </div>
         </div>
-    </div>
+    </div -->
 {{/each}}

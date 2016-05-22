@@ -1,36 +1,27 @@
-<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-    {{> nav this.data}}
-    <main class="mdl-layout__content">
-        <div class="page-content" style="padding-left:100px;">
-
-        </div>
-    </main>
-</div>
-<div class="container-fluid">
-
-    <div class="row">
-        <input type="text" id="search_bar" placeholder="Search"/>
-        <span id="btn_search" class="pull-right glyphicon glyphicon-search"></span>
-    </div>
+{{> nav this.data}}
+<div class="container" id="main">
     <div class="row" id="feeds">
         {{> post this.data}}
     </div>
-</div>
-<div id="modal_post" class="modal" style="display:none;">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <div id="modal_post" class="modal" style="display:none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body" id="modal_body"></div>
             </div>
-            <div class="modal-body" id="modal_body"></div>
         </div>
     </div>
+    <div class="alert alert-success" id="alert_success" role="alert" style="display:none;"></div>
+    <div class="alert alert-danger" id="alert_error" role="alert" style="display:none;"></div>
 </div>
-<div class="alert alert-success" id="alert_success" role="alert" style="display:none;"></div>
-<div class="alert alert-danger" id="alert_error" role="alert" style="display:none;"></div>
+
 <script>
     function onLoad()
     {
+        alert('gapi');
+
         gapi.load('auth2', function() {
           gapi.auth2.init();
         });
@@ -132,11 +123,16 @@
     var wall    =   new WALL();
     $(document).ready(function()
     {
+        $(".button-collapse").sideNav();
         var id_user =   "{{data.user.id_user}}";
-
+        $('#google_script').on('load', function() {
+            alert('script loaded');
+        });
         wall.init();
-        $('#btn_logout').on('click', function()
+        $('.btnLogout').on('click', function(e)
         {
+            e.preventDefault();
+
             $('body').addClass('loading');
 
             var auth2 = gapi.auth2.getAuthInstance();
@@ -212,12 +208,14 @@
             });
         });
 
-        $('#btn_search').on('click', function(e)
+        $('.btnSearch').on('click', function(e)
         {
             e.preventDefault();
+            var search_ele  =   $(this).data('search_bar');
 
-            if($.trim($('#search_bar').val()).length == 0)
+            if($.trim($(search_ele).val()).length == 0)
                 return;
+
             $('body').addClass('loading');
             location.href =   '/home/search/keyword/' + $.trim($('#search_bar').val());
         });

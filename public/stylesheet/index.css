@@ -1,65 +1,58 @@
-.error {
-    visibility: hidden;
-    color: red;
-    text-align: center;
-    height: 20px;
-}
-html, body {
-    height: 100%;
-    width: 100%;
+a {
+    color: inherit;
 }
 
-.alert {
-    position: fixed;
-    width: 100%;
-    text-align: center;
-    bottom: 10px;
+.userName {
+    padding-left: 15px;
 }
 
-.containerError .alert {
-    bottom: 50%;
+.mobileUserImage {
+    position: relative;
+    top: 20%;
 }
 
-.navUser img {
-    height: 50px;
+.mobileSearchIcon {
+    margin-right: 5%;
 }
 
-#preview_image {
-    width: 200px;
+.postBookmarkIcon {
+    position: absolute;
+    top: -2%;
+    left: 1%;
+    cursor: pointer;
 }
 
-.defaultHidden {
-    display: none;
+.container {
+    width: 95%
 }
 
-.alert {
-    position: fixed;
-    width: 100%;
-    text-align: center;
-    bottom: 10px;
+.card.small .card-content {
+    max-height: 80%;
 }
 
-.loader {
-    display:    none;
-    position:   fixed;
-    z-index:    1000;
-    top:        0;
-    left:       0;
-    height:     100%;
-    width:      100%;
-    background: rgba( 255, 255, 255, .8 )
-                50% 50%
-                no-repeat;
-}
-
-body.loading {
+.customTruncate {
     overflow: hidden;
+    height: 3.6em;
+    text-overflow: ellipsis;
 }
 
-body.loading .loader {
-    display: block;
+.card .card-action {
+    padding: 5px;
 }
 
-.post .userImg {
-    height: 50px;
+.card-action {
+    padding: 5px;
+}
+
+.card .card-action a:not(.btn):not(.btn-large):not(.btn-floating) {
+    margin-right: 0px;
+    color:inherit;
+}
+
+.card .card-action a:not(.btn):not(.btn-large):not(.btn-floating):hover {
+    color: #1565c0;
+}
+
+.btnComment {
+    cursor: pointer;
 }

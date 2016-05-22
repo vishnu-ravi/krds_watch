@@ -1,31 +1,47 @@
-<header class="mdl-layout__header">
-     <!-- Top row, always visible -->
-     <div class="mdl-layout__header-row">
-     <!-- Title -->
-        <span class="mdl-layout-title">KRDS Watch</span>
-        <!-- Tabs -->        
-        <nav class="mdl-navigation">
-            {{#each tabs}}
-                <a class="mdl-navigation__link {{active}}" href="/{{key}}">{{name}}</a>
-            {{/each}}
+<header>
+    <div class="navbar-fixed">
+        <nav class="blue darken-4">
+            <div class="nav-wrapper">
+                <a href="#" class="brand-logo center">KRDS Watch</a>
+                <ul class="left hide-on-med-and-down">
+                    {{#each tabs}}
+                        <li class="{{active}}">
+                            <a href="/{{key}}" class="waves-effect"> <i class="material-icons left">{{#ifCond key '==' 'home'}}home{{else ifCond key '==' 'bookmark'}}book{{else}}add_circle_outline{{/ifCond}}</i>{{name}}</a>
+                        </li>
+                    {{/each}}
+                </ul>
+                <ul class="right hide-on-med-and-down">
+                    <li>
+                        <input id="search_bar_desktop" type="search" placeholder="Search" class="browser-default">
+                    </li>
+                    <li><a href="#" class="btnSearch" data-search_bar="#search_bar_desktop"><i class="material-icons">search</i></a></li>
+                    <li>
+                        <a href="/home/user/{{user.id_user}}" class="valign-wrapper">
+                            <img src="{{user.picture}}" alt="{{user.name}}" class="circle responsive-img  z-depth-3" height="45px" width="45px" />
+                            <span class="userName">{{user.name}}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="btnLogout"><i class="material-icons right">power_settings_new</i></a>
+                    </li>
+                </ul>
+                <ul id="slide-out" class="side-nav">
+                    <li>
+                        <a href="/home/user/{{user.id_user}}">
+                            <img src="{{user.picture}}" alt="{{user.name}}" class="circle responsive-img mobileUserImage z-depth-4" height="45px" width="45px" />
+                            <span class="userName">{{user.name}}</span>
+                        </a>
+                    </li>
+                    {{#each tabs}}
+                        <li class="{{active}}">
+                            <a href="/{{key}}" class="waves-effect"><i class="material-icons right">{{#ifCond key '==' 'home'}}home{{else ifCond key '==' 'bookmark'}}book{{else}}add_circle_outline{{/ifCond}}</i>{{name}}</a>
+                        </li>
+                    {{/each}}
+                    <li><a href="#" class="btnLogout waves-effect"><i class="material-icons right">power_settings_new</i>Logout</a></li>
+                </ul>
+                <a href="#" data-activates="slide-out" class="button-collapse hide-on-large-only"><i class="material-icons left">menu</i></a>
+                <a href="#" class="hide-on-large-only right mobileSearchIcon"><i class="material-icons">search</i></a>
+            </div>
         </nav>
-     </div>
+    </div>
 </header>
-
-<div class="row">
-    <div class="navUser col-md-3 pull-left">
-        <img src="{{user.picture}}" alt="{{user.name}}" class="img-thumbnail" />
-        <span><a href="/home/user/{{user.id_user}}" class="text-info">{{user.name}}</a></span>
-    </div>
-    <div class="user col-md-8">
-        <ul class="nav nav-pills">
-            {{#each tabs}}
-                <li role="presentation" class="{{active}}"><a href="/{{key}}">{{name}}</a></li>
-            {{/each}}
-        </ul>
-    </div>
-    <div class="pull-right col-md-1">
-        <button id="btn_logout" class="btn btn-primary"/><span class="glyphicon glyphicon-log-out"></span></button>
-    </div>
-</div>
-<hr>
