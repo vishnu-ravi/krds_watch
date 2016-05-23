@@ -37,7 +37,7 @@ module.exports  =   function ( app, tabs ) {
 
         Users.findOne({email: email}, function(err, user)
         {
-            if(err)
+            if(err || id_post == 'undefined')
             {
                 res.status(500)
                 res.render('error');
@@ -49,7 +49,8 @@ module.exports  =   function ( app, tabs ) {
                 .lean()
                 .exec(function(error, post) {
                     var renderedViews   =   {};
-                    if(post.comments.length)
+                    
+                    if(typeof post !== undefined && post.comments.length)
                     {
                         post.comments.forEach(function(comment, index) {
                             comment.id_post     =   post._id;

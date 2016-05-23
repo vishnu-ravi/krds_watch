@@ -25,6 +25,7 @@ module.exports  =   function ( app, tabs) {
 
             tabs[1].active  =   'active';
             data.tabs       =   tabs;
+            data.activeKey  =   'bookmark';
             var Posts       =   require('../models/posts.js');
 
             if(user.bookmarks.length) {

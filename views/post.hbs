@@ -1,66 +1,70 @@
-<div class="container-fluid">
-    <link rel="stylesheet" href="/stylesheet/jquery.tag-editor.css">
-    <link rel="stylesheet" href="/stylesheet/jquery-ui.min.css">
-    {{> nav this}}
+
+<link rel="stylesheet" href="/stylesheet/jquery.tag-editor.css">
+<link rel="stylesheet" href="/stylesheet/jquery-ui.min.css">
+{{> nav this}}
+<div class="container" >
     <div class="row">
-        <form>
-            <div class="form-group row">
-                <label for="description" class="col-sm-4 form-control-label">Description</label>
-                <div class="col-sm-8">
-                    <input class="form-control" type="text" id="description" name="description" placeholder="Description" {{#if post}} value="{{post.description}}" {{/if}} />
+        <form class="col s12">
+            <div class="row">
+                <div class="input-field col s12">
+                    <input type="text" id="description" name="description" length="40" class="validate" {{#if post}} value="{{post.description}}" {{/if}}  />
+                    <label for="description">Description</label>
                 </div>
             </div>
-            <div class="form-group row">
-                <label for="url" class="col-sm-4 form-control-label">URL</label>
-                <div class="col-sm-8">
-                    <input class="form-control" type="text" id="url" name="url" placeholder="URL" {{#if post}} value="{{post.url}}" {{/if}}/>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input type="text" id="url" name="description" class="validate" {{#if post}} value="{{post.url}}" {{/if}}  />
+                    <label for="URL">URL</label>
                 </div>
             </div>
-            <div class="form-group row defaultHidden" id="post_preview_container">
-                <label class="col-sm-4 form-control-label">Preview</label>
-                <div class="col-sm-8">
+            <div class="row defaultHidden" id="post_preview_container">
+                <div class="input-field col s12">
                     <div class="row">
-                        <div class="loader hidden" style="height:400px;"></div>
-                        <div class="col-sm-4">
-                            <img id="preview_image" src="/images/setting_icon.png" alt="Preview Image" class="img-thumbnail img-responsive">
+                        <div class="progress loader">
+                            <div class="indeterminate"></div>
                         </div>
-                        <div class="col-sm-8">
+                        <div class="col s4">
+                            <img id="preview_image" src="/images/setting_icon.png" alt="Preview Image" class="img-thumbnail img-responsive" height="200ps" width="200px">
+                        </div>
+                        <div class="col s8">
                             <h3 id="preview_title">Title</h3>
                             <p id="preview_description">Description</p>
                         </div>
                     </div>
+                    <label for="preview">Preview</label>
                 </div>
             </div>
-            <div class="form-group row">
-                <label for="tags" class="col-sm-4 form-control-label">Tags</label>
-                <div class="col-sm-8">
-                    <input type="text" id="tags" class="form-control" name="tags" placeholder="Tags"/>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input type="text" id="tags" name="tags" placeholder="Tags"/>
+                    <label for="tags">Tags</label>
                 </div>
             </div>
-            <div class="form-group row">
-                <label for="highlight" class="col-sm-4 form-control-label">Highlight</label>
-                <div class="col-sm-8">
-                    <label class="radio-inline">
-                      <input type="radio" name="highlight" id="highlight_yes" value="1" checked="false"> Yes
-                    </label>
-                    <label class="radio-inline">
-                      <input type="radio" name="highlight" id="highlight_no" value="0" checked="checked"> No
-                    </label>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="categories" class="col-sm-4 form-control-label">Category</label>
-                <div class="col-sm-8">
-                    <input type="text" id="categories" class="form-control" name="categories" placeholder="Categories"/>
+            <div class="row">
+                <div class="input-field col s12">
+                    <p>
+                        <input type="radio" name="highlight" id="highlight_yes" value="1" checked="false">
+                        <label for="highlight_yes">Yes</label>
+                    </p>
+                    <p>
+                        <input type="radio" name="highlight" id="highlight_no" value="0" checked="checked">
+                        <label for="highlight_no">No</label>
+                    </p>
+                    <label for="highlight">Highlight</label>
                 </div>
             </div>
 
-            <div class="form-group row">
-                <div class="col-sm-offset-4 col-sm-8">
-                    <button id="btn_submit" type="submit" class="btn btn-primary">Save</button>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input type="text" id="categories" name="categories" placeholder="Category"/>
+                    <label for="categories">Category</label>
                 </div>
             </div>
-            <div class="alert" id="alert_info" role="alert" style="display:none;"></div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <button id="btn_submit" type="submit" class="btn">Save</button>
+                </div>
+            </div>
         </form>
     </div>
 </div>
@@ -68,6 +72,13 @@
 <script src="/javascript/lib/jquery.tag-editor.min.js"></script>
 <script src="/javascript/lib/jquery.caret.min.js"></script>
 <script>
+    function onLoad()
+    {
+        gapi.load('auth2', function() {
+          gapi.auth2.init();
+        });
+    }
+
     var categories  =   "{{categories}}";
     var tags        =   "{{tags}}";
     var id_user     =   "{{user.id_user}}";
@@ -99,6 +110,20 @@
 
     $(document).ready(function()
     {
+        $(".button-collapse").sideNav();
+
+        $('.btnLogout').on('click', function(e)
+        {
+            e.preventDefault();
+
+            $('body').addClass('loading');
+
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signOut().then(function () {
+              location.href =   '/logout'
+            });
+        });
+        
         $('#tags').tagEditor({
             initialTags: initialTags,
             delimiter: ', ', /* space and comma */
@@ -136,6 +161,8 @@
                 }
             }
         });
+        Materialize.updateTextFields();
+
         var expression  =   /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
         var regex       =   new RegExp(expression);
         var busy        =    false;
@@ -143,7 +170,7 @@
         {
             if( ! $(this).val().match(regex))
             {
-                $('#alert_info').html('Invalid Url').addClass('alert-error').show();
+                Materialize.toast("Invalid Url", 4000, "rounded");
                 return false;
             }
 
@@ -152,6 +179,7 @@
 
             busy    =   true;
             $('#btn_submit').addClass('disabled');
+            $('.loader').show();
             $.ajax({
                 cache: false,
                 type: 'POST',
@@ -172,6 +200,7 @@
                 },
                 complete: function(){
                     busy    =   false;
+                    $('.loader').hide();
                     $('#btn_submit').removeClass('disabled');
                 }
             });
@@ -225,7 +254,7 @@
                         if(jXhr.status == 400 || jXhr.status == 500 || jXhr.status == 403)
                             $('#alert_info').html(jXhr.msg).addClass('alert-error').show();
 
-                        $('body').removeClass('loading');    
+                        $('body').removeClass('loading');
                     },
                     success: function(data) {
                         $('body').addClass('loading');
@@ -240,8 +269,7 @@
             {
                 if(e.ele)
                     $(e.ele).focus();
-
-                $('#alert_info').html(e.msg).addClass('alert-error').show();
+                Materialize.toast(e.msg, 4000, "rounded");
             }
         });
 

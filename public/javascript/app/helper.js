@@ -10,6 +10,8 @@ var register = function(Handlebars) {
                    return (v1 == v2) ? options.fn(this) : options.inverse(this);
                case '===':
                    return (v1 === v2) ? options.fn(this) : options.inverse(this);
+               case '!=':
+                   return (v1 != v2) ? options.fn(this) : options.inverse(this);
                case '<':
                    return (v1 < v2) ? options.fn(this) : options.inverse(this);
                case '<=':
@@ -22,6 +24,7 @@ var register = function(Handlebars) {
                    return (v1 && v2) ? options.fn(this) : options.inverse(this);
                case '||':
                    return (v1 || v2) ? options.fn(this) : options.inverse(this);
+
                default:
                    return options.inverse(this);
            }

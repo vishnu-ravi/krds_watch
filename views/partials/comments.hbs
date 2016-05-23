@@ -1,7 +1,25 @@
 {{#each post.comments}}
-    <p>{{this.comment}} <span>Posted By {{this.id_user.name}} <img src="{{this.id_user.picture}}"/> {{this.date}}</span></p>
-    {{#ifCond this.owner_id '==' this.id_user._id}}
-        <a href="#" class="btnCommentEdit glyphicon glyphicon-pencil" data-comment="{{this.comment}}" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{this.id_post}}"></a>
-        <a href="#" class="btnCommentDelete glyphicon glyphicon-trash" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{this.id_post}}" data-date="{{this.date}}"></a>
-    {{/ifCond}}
+    <div class="userComment row">
+        <div class="col s5">
+            <a href="/users/{{this.id_user._id}}" class="">
+                <span class="left">
+                    <img src="{{this.id_user.picture}}" alt="{{this.id_user.name}}" class="userImg circle responsive-img z-depth-2 left" height="30px" width="30px" />
+                    <div class="left userInfo">
+                        <div class="userInfoData truncate">{{this.id_user.name}}</div>
+                        <div class="dateInfo commentDate truncate">{{this.date}}</div>
+                    </div>
+                </span>
+            </a>
+        </div>
+        <div class="col s5" style="margin-left:-5%;">
+            <span>{{this.comment}}</span>
+        </div>
+
+        {{#ifCond this.owner_id '==' this.id_user._id}}
+            <div class="col s2 right">
+                <a href="#" class="btnCommentEdit" data-comment="{{this.comment}}" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{this.id_post}}"><i class="material-icons">mode_edit</i></a>
+                <a href="#" class="btnCommentDelete" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{this.id_post}}" data-date="{{this.date}}"><i class="material-icons">delete</i></a>
+            </div>
+        {{/ifCond}}
+    </div>
 {{/each}}

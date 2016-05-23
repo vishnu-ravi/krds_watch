@@ -3,25 +3,32 @@
     <div class="row" id="feeds">
         {{> post this.data}}
     </div>
-    <div id="modal_post" class="modal" style="display:none;">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <div id="modal_post" class="modal modal-fixed-footer">
+        <div class="modal-content">
+            <a href="#" class="btnModalClose wave-effect waves-red btn-flat right"><i class="material-icons">clear</i></a>
+            <div id="modal_content"></div>
+            <div id="block_comment">
+                <div class="progress" id="comment_loader">
+                    <div class="indeterminate"></div>
                 </div>
-                <div class="modal-body" id="modal_body"></div>
+                <div class="comments"></div>
+
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="postComment">
+                <form id="comment_form" action="">
+                    <input type="text" class="comment"/>
+                    <a href="#" class="btnPostComment waves-effect waves-light btn btn-samll" data-id_post="">Comment</a>
+                </form>
             </div>
         </div>
     </div>
-    <div class="alert alert-success" id="alert_success" role="alert" style="display:none;"></div>
-    <div class="alert alert-danger" id="alert_error" role="alert" style="display:none;"></div>
 </div>
 
 <script>
     function onLoad()
     {
-        alert('gapi');
-
         gapi.load('auth2', function() {
           gapi.auth2.init();
         });
@@ -59,6 +66,7 @@
 
     WALL.prototype.addToWall    =   function(item) {
         $('#feeds').append(item);
+        $('.tooltipped').tooltip({delay: 50});
     };
 
     WALL.prototype.getPosts     =   function() {
@@ -94,7 +102,7 @@
             return;
 
         var url =   '/comment/' + id_post;
-
+        $('#comment_loader').show();
         $.ajax({
             url		 :	url,
             type	 :	'GET',
@@ -102,33 +110,56 @@
             cache	 :	false,
             success	 :  function(data)
             {
-                $('#modal_post').find('.comments').empty().html(data.html);
+                $('#modal_post').find('#block_comment .comments').empty().html(data.html);
             },
             error: function(jXhr)
             {
                 if(jXhr.status == 400 || jXhr.status == 500 || jXhr.status == 403)
                     _this.showMessage('error', jXhr.msg);
+            },
+            complete: function() {
+                $('#comment_loader').hide();
             }
         });
     };
 
     WALL.prototype.showMessage   =   function(type, msg) {
-        if(typeof timeout != 'undefined')
+        /*if(typeof timeout != 'undefined')
             clearTimeout(timeout);
         var $element =   type == 'success' ? $('#alert_success') : $('#alert_error');
         $element.html(msg).css('display', 'block');
-        timeout    =    setTimeout(function(){ $element.css('display', 'none'); }, 4000);
+        timeout    =    setTimeout(function(){ $element.css('display', 'none'); }, 4000);*/
+
+        Materialize.toast(msg, 4000, "rounded");
     };
 
     var wall    =   new WALL();
+
     $(document).ready(function()
     {
         $(".button-collapse").sideNav();
+
+        $('.btnModalClose').on('click', function(e) {
+            e.preventDefault();
+
+            $('#modal_post').closeModal();
+        })
         var id_user =   "{{data.user.id_user}}";
-        $('#google_script').on('load', function() {
-            alert('script loaded');
-        });
+
         wall.init();
+
+        $('.mobileSearchIcon').on('click', function(e) {
+            e.preventDefault();
+
+            $('#mobile_serach_box').toggle();
+        });
+
+        $('#btn_search_clear').on('click', function(e) {
+            e.preventDefault();
+
+            $('#search_bar_mobile').val('');
+        });
+
         $('.btnLogout').on('click', function(e)
         {
             e.preventDefault();
@@ -164,8 +195,9 @@
                 success: function(data) {
                     wall.showMessage('success', data.msg);
 
-                    $('.bookmark[data-id_post="' + id_post + '"]').removeClass('bookmark glyphicon-star-empty').addClass('bookmarked glyphicon-star')
-                        .data('id_bookmark', data.id_bookmark).attr('data-id_bookmark', data.id_bookmark);
+                    $('.bookmark[data-id_post="' + id_post + '"]').removeClass('bookmark').addClass('bookmarked')
+                        .data('id_bookmark', data.id_bookmark).attr('data-id_bookmark', data.id_bookmark)
+                        .html('bookmark');
                 },
                 complete: function(){
                     busy    =   false;
@@ -195,11 +227,11 @@
                 },
                 success: function(data) {
                     wall.showMessage('success', data.msg);
-
                     $('.bookmarked[data-id_bookmark="' + id_bookmark + '"]')
-                        .removeClass('bookmarked glyphicon-star').addClass('bookmark glyphicon-star-empty')
+                        .removeClass('bookmarked').addClass('bookmark')
                         .data('id_bookmark', '')
-                        .removeAttr('data-id_bookmark');
+                        .removeAttr('data-id_bookmark')
+                        .html('bookmark_border');
                 },
                 complete: function(){
                     busy    =   false;
@@ -217,7 +249,19 @@
                 return;
 
             $('body').addClass('loading');
-            location.href =   '/home/search/keyword/' + $.trim($('#search_bar').val());
+            location.href =   '/home/search/keyword/' + $.trim($(search_ele).val());
+        });
+
+        $('#search_form').on('submit', function(e) {
+            e.preventDefault();
+
+            $('#btn_search').trigger('click');
+        });
+
+        $('#comment_form').on('submit', function(e) {
+            e.preventDefault();
+
+            $('.btnPostComment').trigger('click');
         });
 
         $('body').on('click', '.btnPostComment', function(e)
@@ -347,11 +391,13 @@
             e.preventDefault();
 
             var html    =   $(this).parents('.post').html();
-
-            $('#modal_post #modal_body').empty().html(html);
-            $('#modal_post').find('.blockCommentBtn').hide()
-            $('#modal_post').find('.blockComment').show();
-            $('#modal_post').modal('show');
+            var id_post =   $(this).data('id_post');
+            $('#modal_post #modal_content').empty().html(html);
+            $('#modal_post').find('.btnComment').remove();
+            $('#modal_post').find('.dropdown-button').remove();
+            $('#modal_post').find('.btnPostComment').data('id_post', id_post).attr('data-id_post', id_post);
+            $('#modal_post').openModal();
+            wall.getComments(id_post);
         });
     });
 </script>

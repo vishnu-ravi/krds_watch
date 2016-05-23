@@ -1,6 +1,6 @@
 {{#each posts}}
     <div class="col s12 m4 l3 post">
-        <div class="card small {{#if is_highlighted}} lime lighten-3 {{else}} blue lighten-5 {{/if}} hoverable">
+        <div class="card small {{#if is_highlighted}} lime lighten-3 {{else}} white {{/if}} hoverable">
             <div class="card-content">
                 <span class="left postBookmarkIcon">
                     {{#if is_bookmarked}}
@@ -18,63 +18,36 @@
                         <a class="dropdown-button" href="#" data-activates="editDropdown_{{_id}}"><i class="material-icons">expand_more</i></a>
                     </span>
                 {{/ifCond}}
-                <a href="/users/{{id_user._id}}" class="">
-                    <span class="card-title valign-wrapper">
-                        <img src="{{id_user.picture}}" alt="{{id_user.name}}" class="userImg circle responsive-img z-depth-2" height="30px" width="30px" />
-                        <span style="font-size:15px;" class="userName">{{id_user.name}}</span>
-                    </span>
-                </a>
-                <p>{{#each tags}} <a href="/home/search/tag/{{this}}" class="chip">{{this}}</a>{{/each}}</p>
+                <div class="row userInfoRow">
+                    <div class="col s12 valign-wrapper">
+                        <a href="/users/{{id_user._id}}" class="">
+                            <span class="left">
+                                <img src="{{id_user.picture}}" alt="{{id_user.name}}" class="userImg circle responsive-img z-depth-2 left" height="35px" width="35px" />
+                                <div class="left userInfo">
+                                    <div class="userInfoData userName">{{id_user.name}}</div>
+                                    <div class="dateInfo commentDate truncate">{{date_edited}}</div>
+                                </div>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+
+                <p>{{#each tags}} <a href="/home/search/tag/{{this}}" class="chip tooltipped"  data-position="top" data-delay="50" data-tooltip="tag">{{this}}</a>{{/each}}</p>
                 <p>{{description}}</p>
                 <p class="row">
                     <a href="{{url}}" target="_blank">
-                        <span class="col s4" style="height:100px; background: url({{image}}) no-repeat center;"></span>
+                        <span class="col s4 postImg" style="background: url({{image}}) no-repeat center;"></span>
                         <span class="col s8">
                             <span class="truncate">{{title}}</span>
-                            <span class="customTruncate" style="">{{preview_description}}</span>
+                            <span class="customTruncate">{{preview_description}}</span>
                         </span>
                     </a>
                 </p>
             </div>
             <div class="card-action">
-                <span class="left" style="margin-left:5px;">{{#each categories}} <a href="/home/search/category/{{this}}" class="chip">{{this}}</a>{{/each}}</span>
-                <span class="btnComment right valign-wrapper" style="margin-top:5px;"><i class="material-icons">comment</i> Comments</span>
+                <span class="left category">{{#each categories}} <a href="/home/search/category/{{this}}" class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="category">{{this}}</a>{{/each}}</span>
+                <span class="btnComment right valign-wrapper waves-effect waves-red" data-id_post="{{_id}}"><i class="material-icons">comment</i> Comments</span>
             </div>
         </div>
     </div>
-    <!-- div class="col s4 post">
-        <div class="card small blue-grey darken-1">
-
-            <div class="row">
-                <a href="{{url}}" target="_blank">
-                    <div class="col-sm-4">
-                        <img src="{{image}}" alt="{{title}}" class="img-thumbnail img-responsive">
-                    </div>
-                    <div class="col-sm-8">
-                        <h3>{{title}}</h3>
-                        <p>{{preview_description}}</p>
-                    </div>
-                </a>
-                <div class="blockComment" style="display:none;">
-                    <div class="comments">
-                        {{#each comments}}
-                            <p>{{this.comment}} <span>Posted By {{this.id_user.name}} <img src="{{this.id_user.picture}}"/> {{this.date}}</span></p>
-                            {{#ifCond ../../user.id_user '==' this.id_user._id}}
-                                <a href="#" class="btnCommentEdit glyphicon glyphicon-pencil" data-comment="{{this.comment}}" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{../_id}}"></a>
-                                <a href="#" class="btnCommentDelete glyphicon glyphicon-trash" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{../_id}}" data-date="{{this.date}}"></a>
-                            {{/ifCond}}
-                        {{/each}}
-                    </div>
-                    <div class="postComment">
-                        <input type="text" class="comment"/>
-                        <a href="#" class="btnPostComment glyphicon glyphicon-ok" data-id_post="{{_id}}"></a>
-                    </div>
-                </div>
-                <div class="blockCommentBtn">
-                    <a href="#" class="btnComment"><span class="glyphicon glyphicon-comment"></span> Comment</a>
-                </div>
-                <p>{{#each categories}} <a href="/home/search/category/{{this}}">{{this}}</a>{{/each}}</p>
-            </div>
-        </div>
-    </div -->
 {{/each}}

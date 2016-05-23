@@ -1,15 +1,12 @@
-<div class="container-fluid container-table">
-    <div id="form_container" class="row vertical-center-row">
-        <div class="col-lg-6 col-lg-offset-3 text-center">
-            <h1 class="text-center" style="margin-bottom: 50px">Login</h1>
-            <div class="g-signin2" data-onsuccess="onSignIn"></div>
-        </div>
-        <div class="alert fade in" id="login-error" style="display:none;">
-            <button type="button" class="close">×</button>
-            <p id="message"></p>
-        </div>
+<div class="container loginContainer valign-wrapper">
+    <div style="margin:auto; text-align:center;">
+        <h1 class="text-center" style="margin-bottom: 50px">Login</h1>
+        <div class="g-signin2" data-onsuccess="onSignIn"></div>
+        <a href="#" class="btnLogout waves-effect btn defaultHidden" style="margin-top:10%;"><i class="material-icons right">power_settings_new</i>Logout</a>
     </div>
+
 </div>
+
 <script>
 function onSignIn(googleUser) {
     var profile = googleUser.getBasicProfile();
@@ -20,10 +17,16 @@ function onSignIn(googleUser) {
     console.log('Image URL: ' + profile.getImageUrl());
     console.log('Email: ' + profile.getEmail());
     var domain = profile.getEmail().replace(/.*@/, "");
-    if(domain .indexOf("krds") == -1)
+
+    if(domain.indexOf("krds") == -1)
     {
-        $('#message').html('You are not a KRDS user');
-        $('#login-error').show();
+        Materialize.toast('You are not a KRDS user', 4000, "rounded");
+
+        gapi.load('auth2', function() {
+            gapi.auth2.init();
+        });
+
+        $('.btnLogout').show().css('display', 'block');
     }
     else {
         $.ajax({
@@ -36,21 +39,39 @@ function onSignIn(googleUser) {
         },
         error: function(jXhr) {
             if(jXhr.status == 400 || jXhr.status == 500)
-                //_this.showError(jXhr.msg);
-                console.log(jXhr.msg);
+                Materialize.toast(jXhr.msg, 4000, "rounded");
         },
         success: function(data) {
-            console.log(data);
             if(data.success == true)
                 location.reload();
         }
     });
     }
 }
+
+function setHeight() {
+    var vpw =   $(window).width();
+    var vph =   $(window).height();
+    $('.loginContainer').css({'height': vph + 'px'});
+}
 $(document).ready(function()
 {
-    $('.alert .close').on('click', function(e) {
-        $(this).parent().hide();
+    setHeight();
+
+    $(window).on('resize', function() {
+        setHeight();
+    });
+
+    $('.btnLogout').on('click', function(e)
+    {
+        e.preventDefault();
+
+        $('body').addClass('loading');
+
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+          location.href =   '/logout'
+        });
     });
 });
 
