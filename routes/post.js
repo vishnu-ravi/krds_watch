@@ -13,6 +13,7 @@ module.exports = function (app, tabs) {
 
         tabs[2].active  =   'active';
         data.tabs       =   tabs;
+        data.activeKey  =   'post';
 
         if(typeof email === 'undefined')
         {

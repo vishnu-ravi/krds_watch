@@ -4,8 +4,16 @@ a {
 
 .userName {
     padding-left: 15px;
+    font-size:15px;
 }
 
+.post .userName {
+    font-size:15px;
+}
+
+.postImg {
+    height: 100px;
+}
 .mobileUserImage {
     position: relative;
     top: 20%;
@@ -13,6 +21,40 @@ a {
 
 .mobileSearchIcon {
     margin-right: 5%;
+}
+
+li.search {
+    margin-top: 2%;
+    padding: 1px 0 0 0;
+}
+
+.search-wrapper {
+    margin: 0 20px;
+    transition: margin .25s ease;
+}
+
+.search-wrapper input, .search-wrapper input:focus {
+    display: block;
+    font-size: 16px;
+    font-weight: 300;
+    width: 77%;
+    height: 45px;
+    margin: 0;
+    border: 0;
+    color: black;
+}
+
+.search-wrapper input:focus {
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+.search-wrapper i.material-icons {
+    position: absolute;
+    top: -6px;
+    right: 3px;
+    cursor: pointer;
+    color: black;
 }
 
 .postBookmarkIcon {
@@ -32,8 +74,8 @@ a {
 
 .customTruncate {
     overflow: hidden;
-    height: 3.6em;
-    text-overflow: ellipsis;
+    height: 2.4em;
+    position: relative;
 }
 
 .card .card-action {
@@ -46,7 +88,11 @@ a {
 
 .card .card-action a:not(.btn):not(.btn-large):not(.btn-floating) {
     margin-right: 0px;
-    color:inherit;
+    color:rgba(0,0,0,0.6);
+}
+
+.chip:hover {
+    color: #1565c0;
 }
 
 .card .card-action a:not(.btn):not(.btn-large):not(.btn-floating):hover {
@@ -55,4 +101,107 @@ a {
 
 .btnComment {
     cursor: pointer;
+    display: flex !important;
+}
+#search_bar_mobile {
+    display: inline;
+    width: 75%;
+    margin-left: 4%;
+}
+.inlineIcon {
+    display:inline !important;
+}
+
+.searchIcon {
+    margin-left: 2%;
+}
+
+.card-action .category {
+    margin-left:5px;
+}
+
+.card-action .btnComment {
+    margin-top:5px;
+    padding-right: 4%;
+}
+
+.card-action .btnComment i {
+    margin-right: 2%;
+}
+
+.btnModalClose {
+    position: relative;
+    top: -5%;
+    left: 5%;
+}
+
+#block_comment .comments {
+    overflow-y: scroll;
+    height: 230px;
+}
+
+#comment_form {
+    margin-bottom: 0px;
+}
+
+#modal_post {
+    overflow: hidden;
+}
+
+.modal-content {
+    overflow: hidden;
+    overflow-y: hidden !important;
+}
+
+.userComment {
+    margin-right: 0.25rem !important;
+}
+
+.postComment .comment {
+    width: 69%;
+    margin-left: 2%;
+}
+
+.userInfo {
+    width:180px;
+}
+
+.dateInfo {
+    font-size: 10px;
+    color: grey;
+    padding-left:10px;
+}
+
+.userInfoData {
+    padding-left:15px;
+}
+
+.userInfoRow {
+    margin-bottom: 0px;
+}
+
+.defaultHidden{
+    display:none;
+}
+
+.g-signin2 {
+    margin: auto;
+    padding-left: 10%;
+}
+
+::-webkit-input-placeholder {
+    color: #000000;
+    opacity: 1 !important; /* for chrome */
+}
+
+:-moz-placeholder { /* Firefox 18- */
+    color: #000000;
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+    color: #000000;
+}
+
+:-ms-input-placeholder {
+   color: #000000;
 }

@@ -2,7 +2,7 @@
     <div class="navbar-fixed">
         <nav class="blue darken-4">
             <div class="nav-wrapper">
-                <a href="#" class="brand-logo center">KRDS Watch</a>
+                <a href="/home" class="brand-logo center">KRDS Watch</a>
                 <ul class="left hide-on-med-and-down">
                     {{#each tabs}}
                         <li class="{{active}}">
@@ -11,12 +11,18 @@
                     {{/each}}
                 </ul>
                 <ul class="right hide-on-med-and-down">
+                    {{#ifCond activeKey '!=' 'post'}}
+                        <li class="search">
+                            <form id="search_form" action="">
+                                <div class="search-wrapper card">
+                                    <input id="search_bar_desktop" placeholder="Search" class="browser-default">
+                                    <i class="material-icons btnSearch" data-search_bar="#search_bar_desktop">search</i>
+                                </div>
+                            </form>
+                        </li>
+                    {{/ifCond}}
                     <li>
-                        <input id="search_bar_desktop" type="search" placeholder="Search" class="browser-default">
-                    </li>
-                    <li><a href="#" class="btnSearch" data-search_bar="#search_bar_desktop"><i class="material-icons">search</i></a></li>
-                    <li>
-                        <a href="/home/user/{{user.id_user}}" class="valign-wrapper">
+                        <a href="/users/{{user.id_user}}" class="valign-wrapper">
                             <img src="{{user.picture}}" alt="{{user.name}}" class="circle responsive-img  z-depth-3" height="45px" width="45px" />
                             <span class="userName">{{user.name}}</span>
                         </a>
@@ -27,7 +33,7 @@
                 </ul>
                 <ul id="slide-out" class="side-nav">
                     <li>
-                        <a href="/home/user/{{user.id_user}}">
+                        <a href="/users/{{user.id_user}}">
                             <img src="{{user.picture}}" alt="{{user.name}}" class="circle responsive-img mobileUserImage z-depth-4" height="45px" width="45px" />
                             <span class="userName">{{user.name}}</span>
                         </a>
@@ -40,8 +46,23 @@
                     <li><a href="#" class="btnLogout waves-effect"><i class="material-icons right">power_settings_new</i>Logout</a></li>
                 </ul>
                 <a href="#" data-activates="slide-out" class="button-collapse hide-on-large-only"><i class="material-icons left">menu</i></a>
-                <a href="#" class="hide-on-large-only right mobileSearchIcon"><i class="material-icons">search</i></a>
+                {{#ifCond activeKey '!=' 'post'}}
+                    <a href="#" class="hide-on-large-only right mobileSearchIcon"><i class="material-icons">search</i></a>
+                {{/ifCond}}
             </div>
         </nav>
     </div>
 </header>
+{{#ifCond activeKey '!=' 'post'}}
+    <div id="mobile_serach_box" class="navbar-fixed" style="display:none;">
+        <nav class="grey lighten-2 black-text">
+            <div class="valign-wrapper nav-wrapper">
+                <input id="search_bar_mobile" type="search" placeholder="Search" class="browser-default"/>
+                <span class="searchIcons">
+                    <i class="material-icons btnSearch inlineIcon" data-search_bar="#search_bar_mobile">search</i>
+                    <i class="material-icons btnSearch inlineIcon" id="btn_search_clear">clear</i>
+                </span>
+            </div>
+        </nav>
+    </div>
+{{/ifCond}}

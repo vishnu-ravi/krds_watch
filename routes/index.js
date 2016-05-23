@@ -28,8 +28,9 @@ module.exports = function ( app, tabs ) {
                         tabs.push({key: 'tacking', name: 'Tracking'});
                 }
 
-                data.tabs   =   tabs;
-
+                data.tabs       =   tabs;
+                data.activeKey  =   'home';
+                
                 var Posts   =   require('../models/posts.js');
 
                 Posts.find({}).paginate(page, item_per_page).populate('id_user').populate('comments.id_user')
@@ -110,7 +111,9 @@ module.exports = function ( app, tabs ) {
                         tabs.push({key: 'tracking', name: 'Tracking'});
                 }
 
-                data.tabs   =   tabs;
+                data.tabs       =   tabs;
+                data.activeKey  =   'home';
+
                 var Posts   =   require('../models/posts.js');
                 if(req.params.type == 'tag') {
                     Posts.find({ tags: req.params.key })
@@ -273,7 +276,9 @@ module.exports = function ( app, tabs ) {
                         tabs.push({key: 'tracking', name: 'Tracking'});
                 }
 
-                data.tabs   =   tabs;
+                data.tabs       =   tabs;
+                data.activeKey  =   'home';
+
                 var Posts   =   require('../models/posts.js');
 
                 Posts.find({ id_user: req.params.id_user })
