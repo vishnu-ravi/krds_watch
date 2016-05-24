@@ -42,6 +42,7 @@ li.search {
     margin: 0;
     border: 0;
     color: black;
+    margin-left: 8px;
 }
 
 .search-wrapper input:focus {
@@ -51,7 +52,7 @@ li.search {
 
 .search-wrapper i.material-icons {
     position: absolute;
-    top: -6px;
+    top: -8px;
     right: 3px;
     cursor: pointer;
     color: black;
@@ -158,18 +159,18 @@ li.search {
 }
 
 .postComment .comment {
-    width: 69%;
+    width: 70%;
     margin-left: 2%;
 }
 
 .userInfo {
-    width:180px;
+    width: 80%;
 }
 
 .dateInfo {
     font-size: 10px;
     color: grey;
-    padding-left:10px;
+    padding-left: 15px;
 }
 
 .userInfoData {
@@ -188,6 +189,25 @@ li.search {
     margin: auto;
     padding-left: 10%;
 }
+
+.modal-content .card-content {
+    width: 100%
+}
+
+@media only screen and (max-device-width: 480px) {
+    .btnPostComment {
+        padding: 0 0.2rem;
+    }
+
+    .postComment .comment {
+        width: 69%
+    }
+
+    .modal-content .card .card-content {
+        padding: 10px;
+    }
+}
+
 
 ::-webkit-input-placeholder {
     color: #000000;

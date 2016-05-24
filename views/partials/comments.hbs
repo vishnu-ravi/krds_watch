@@ -4,7 +4,7 @@
             <a href="/users/{{this.id_user._id}}" class="">
                 <span class="left">
                     <img src="{{this.id_user.picture}}" alt="{{this.id_user.name}}" class="userImg circle responsive-img z-depth-2 left" height="30px" width="30px" />
-                    <div class="left userInfo">
+                    <div class="left userInfo hide-on-small-only">
                         <div class="userInfoData">{{this.id_user.name}}</div>
                         <div class="dateInfo commentDate truncate">{{#dateFormat this.date}}{{/dateFormat}}</div>
                     </div>
