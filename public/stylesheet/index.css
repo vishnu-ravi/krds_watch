@@ -1,24 +1,58 @@
+/*Common*/
 a {
     color: inherit;
 }
 
+.container {
+    width: 95%
+}
+
+.defaultHidden{
+    display:none;
+}
+
+.card.small .card-content {
+    max-height: 82%;
+}
+
+.previewDescription {
+    display:block;
+    height: 6.5em;
+}
+
+.card .card-action {
+    padding: 5px;
+}
+
+.card .card-action a:not(.btn):not(.btn-large):not(.btn-floating) {
+    margin-right: 0px;
+    color:rgba(0,0,0,0.6);
+}
+
+.chip:hover {
+    color: #1565c0;
+}
+
+.card .card-action a:not(.btn):not(.btn-large):not(.btn-floating):hover {
+    color: #1565c0;
+}
+
+/*User Info*/
 .userName {
     padding-left: 15px;
     font-size:15px;
 }
 
-.post .userName {
-    font-size:15px;
-}
-
-.postImg {
-    height: 100px;
-}
 .mobileUserImage {
     position: relative;
     top: 20%;
 }
 
+.postImg {
+    height: 100px;
+}
+
+/*Search Style*/
 .mobileSearchIcon {
     margin-right: 5%;
 }
@@ -58,6 +92,17 @@ li.search {
     color: black;
 }
 
+#search_bar_mobile {
+    display: inline;
+    width: 75%;
+    margin-left: 4%;
+}
+
+.searchIcon {
+    margin-left: 2%;
+}
+
+/* Dialog Style*/
 .postBookmarkIcon {
     position: absolute;
     top: -2%;
@@ -65,56 +110,13 @@ li.search {
     cursor: pointer;
 }
 
-.container {
-    width: 95%
-}
-
-.card.small .card-content {
-    max-height: 80%;
-}
-
-.customTruncate {
-    overflow: hidden;
-    height: 2.4em;
-    position: relative;
-}
-
-.card .card-action {
-    padding: 5px;
-}
-
-.card-action {
-    padding: 5px;
-}
-
-.card .card-action a:not(.btn):not(.btn-large):not(.btn-floating) {
-    margin-right: 0px;
-    color:rgba(0,0,0,0.6);
-}
-
-.chip:hover {
-    color: #1565c0;
-}
-
-.card .card-action a:not(.btn):not(.btn-large):not(.btn-floating):hover {
-    color: #1565c0;
-}
-
 .btnComment {
     cursor: pointer;
     display: flex !important;
 }
-#search_bar_mobile {
-    display: inline;
-    width: 75%;
-    margin-left: 4%;
-}
+
 .inlineIcon {
     display:inline !important;
-}
-
-.searchIcon {
-    margin-left: 2%;
 }
 
 .card-action .category {
@@ -181,10 +183,8 @@ li.search {
     margin-bottom: 0px;
 }
 
-.defaultHidden{
-    display:none;
-}
 
+/*Login */
 .g-signin2 {
     margin: auto;
     padding-left: 10%;
@@ -194,6 +194,7 @@ li.search {
     width: 100%
 }
 
+/*Media Queries for Mobile*/
 @media only screen and (max-device-width: 480px) {
     .btnPostComment {
         padding: 0 0.2rem;
@@ -208,7 +209,7 @@ li.search {
     }
 }
 
-
+/*Place Holder color Change*/
 ::-webkit-input-placeholder {
     color: #000000;
     opacity: 1 !important; /* for chrome */

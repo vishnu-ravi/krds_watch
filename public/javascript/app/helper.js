@@ -37,6 +37,16 @@ var register = function(Handlebars) {
                 day: "numeric", hour: "2-digit", minute: "2-digit"
             };
             return date.toLocaleTimeString("en-us", date_options)
+       },
+       truncate: function(text, options) {
+           var maxLength    =   '80';
+
+           if(typeof text == 'undefined')
+                return '';
+
+           if(text.length > maxLength)
+                text = text.substr(0, (maxLength - 3)) + '…';
+            return text;
        }
     };
 
