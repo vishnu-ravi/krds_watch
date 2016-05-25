@@ -4,7 +4,7 @@ module.exports  =   function ( app, tabs) {
     app.route('/bookmark').get(function (req, res) {
         var email   =   req.session.email;
 
-        if(typeof email === 'undefined') {
+        if(typeof email === undefined) {
             res.redirect('/');
             return;
         }
@@ -16,7 +16,8 @@ module.exports  =   function ( app, tabs) {
         {
             if( ! err) {
                 data.user   =   user;
-
+                data.userJSON   =   JSON.stringify(user);
+                
                 if(user.is_admin)
                     tabs.push({key: 'tacking', name: 'Tracking'});
             }

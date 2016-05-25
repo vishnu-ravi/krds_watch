@@ -17,13 +17,20 @@ module.exports = function ( app, tabs ) {
         if(typeof email !== 'undefined') {
             var Users   =   require('../models/users.js');
             require('mongoose-pagination');
+
             Users.findOne({email: email}, function(err, user)
             {
                 if( ! err)
                 {
+                    if(typeof user === undefined || user == null) {
+                        res.redirect('/');
+                        return;
+                    }
+
                     layout      =   'index';
                     data.user   =   user;
-
+                    data.userJSON   =   JSON.stringify(user);
+                    
                     if(user.is_admin)
                         tabs.push({key: 'tacking', name: 'Tracking'});
                 }
@@ -114,8 +121,14 @@ module.exports = function ( app, tabs ) {
             {
                 if( ! err)
                 {
+                    if(typeof user === undefined || user == null) {
+                        res.redirect('/');
+                        return;
+                    }
+
                     layout      =   'index';
                     data.user   =   user;
+                    data.userJSON   =   JSON.stringify(user);
 
                     if(user.is_admin)
                         tabs.push({key: 'tracking', name: 'Tracking'});
@@ -309,9 +322,15 @@ module.exports = function ( app, tabs ) {
 
             Users.findOne({email: email}, function(err, user)
             {
+                if(typeof user === undefined || user == null) {
+                    res.redirect('/');
+                    return;
+                }
+
                 if( ! err) {
                     layout      =   'index';
                     data.user   =   user;
+                    data.userJSON   =   JSON.stringify(user);
 
                     if(user.is_admin)
                         tabs.push({key: 'tracking', name: 'Tracking'});

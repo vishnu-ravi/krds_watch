@@ -14,6 +14,11 @@ module.exports  =   function ( app, tabs ) {
 
         Users.findOne({email: email}, function(err, user)
         {
+            if(typeof user === undefined || user == null) {
+                res.redirect('/');
+                return;
+            }
+
             if(err)
             {
                 res.status(500)
@@ -37,6 +42,11 @@ module.exports  =   function ( app, tabs ) {
 
         Users.findOne({email: email}, function(err, user)
         {
+            if(typeof user === undefined || user == null) {
+                res.status(500)
+                res.render('error');
+            }
+
             if(err || id_post == 'undefined')
             {
                 res.status(500)
@@ -49,7 +59,7 @@ module.exports  =   function ( app, tabs ) {
                 .lean()
                 .exec(function(error, post) {
                     var renderedViews   =   {};
-                    
+
                     if(typeof post !== undefined && post.comments.length)
                     {
                         post.comments.forEach(function(comment, index) {

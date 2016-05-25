@@ -40,6 +40,11 @@ module.exports = function (app, tabs) {
             var categories  =   results[2];
             var post;
 
+            if(typeof user === undefined || user == null) {
+                res.redirect('/');
+                return;
+            }
+            
             if(typeof id_post !== undefined && typeof results[3] !== undefined)
                 post        =   results[3];
 

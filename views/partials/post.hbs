@@ -46,7 +46,7 @@
             </div>
             <div class="card-action">
                 <span class="left category">{{#each categories}} <a href="/home/search/category/{{this}}" class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="category">{{this}}</a>{{/each}}</span>
-                <span class="btnComment right valign-wrapper waves-effect waves-grey" data-id_post="{{_id}}"><i class="material-icons">comment</i> Comments</span>
+                <span class="btnComment right valign-wrapper waves-effect waves-grey" data-owner_id="{{this.id_user._id}}" data-id_post="{{_id}}"><i class="material-icons">mode_comment</i> Comments</span>
             </div>
         </div>
     </div>

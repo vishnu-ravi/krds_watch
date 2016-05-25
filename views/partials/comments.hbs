@@ -30,12 +30,12 @@
 
         <div class="col s12">
             {{#ifCond this.owner_id '==' this.id_user._id}}
-                <ul id="commentEditDropdown_{{_id}}" class="dropdown-content">
+                <ul id="mobile_commentEditDropdown_{{_id}}" class="dropdown-content">
                     <li><a href="#" class="btnCommentEdit" data-comment="{{this.comment}}" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{this.id_post}}"><i class="material-icons">mode_edit</i></a></li>
                     <li><a href="#" class="btnCommentDelete" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{this.id_post}}" data-date="{{this.date}}"><i class="material-icons">delete</i></a></li>
                 </ul>
                 <div class="right">
-                    <a class="dropdown-button commentdropdown-button" onclick="return false;" href="#" data-activates="commentEditDropdown_{{_id}}"><i class="material-icons">arrow_drop_down</i></a>
+                    <a class="dropdown-button commentdropdown-button" onclick="return false;" href="#" data-activates="mobile_commentEditDropdown_{{_id}}"><i class="material-icons">arrow_drop_down</i></a>
                 </div>
             {{/ifCond}}
 
