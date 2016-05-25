@@ -226,9 +226,9 @@ module.exports = function ( app, tabs ) {
 
                     Posts.find({
                              $or: [
-                                 {categories: {'$regex': search}},
-                                 {tags: {'$regex': search}},
-                                 {description: {'$regex': search}}
+                                 {categories: {$regex: new RegExp("^" + search.toLowerCase(), "i")}},
+                                 {tags: {$regex: new RegExp("^" + search.toLowerCase(), "i")}},
+                                 {description: {$regex: new RegExp("^" + search.toLowerCase(), "i")}}
                              ]
                          })
                         .paginate(page, item_per_page)
@@ -306,7 +306,7 @@ module.exports = function ( app, tabs ) {
             var Users   =   require('../models/users.js');
             var page    =   typeof req.query.page == 'undefined' ? 1 : req.query.page;
             require('mongoose-pagination');
-            
+
             Users.findOne({email: email}, function(err, user)
             {
                 if( ! err) {
