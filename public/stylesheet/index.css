@@ -58,6 +58,10 @@ li.search {
     color: black;
 }
 
+.search-wrapper i.material-icons:hover {
+    color: #0d47a1;
+}
+
 .postBookmarkIcon {
     position: absolute;
     top: -2%;
@@ -70,13 +74,12 @@ li.search {
 }
 
 .card.small .card-content {
-    max-height: 80%;
+    max-height: 85%;
 }
 
-.customTruncate {
-    overflow: hidden;
-    height: 2.4em;
-    position: relative;
+.previewDescription {
+    display: block;
+    height: 6.5em;
 }
 
 .card .card-action {

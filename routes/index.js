@@ -30,7 +30,7 @@ module.exports = function ( app, tabs ) {
 
                 data.tabs       =   tabs;
                 data.activeKey  =   'home';
-                
+
                 var Posts   =   require('../models/posts.js');
 
                 Posts.find({}).paginate(page, item_per_page).populate('id_user').populate('comments.id_user')
@@ -38,6 +38,7 @@ module.exports = function ( app, tabs ) {
                     if(user.bookmarks.length) {
                         var i = 0;
                         posts.forEach(function(post) {
+                            posts[i].user_id    =   user._id;
                             user.bookmarks.forEach(function(bookmark) {
                                 if(bookmark.id_post.toString() == post.id_post.toString()) {
                                     posts[i].is_bookmarked    =   true;
@@ -48,6 +49,15 @@ module.exports = function ( app, tabs ) {
                             i++;
                         });
                     }
+                    else {
+                        var i = 0;
+
+                        posts.forEach(function(post) {
+                            posts[i].user_id    =   user._id;
+                            i++;
+                        });
+                    }
+
                     data.posts  =   posts;
 
                     if(is_ajax)
@@ -124,6 +134,7 @@ module.exports = function ( app, tabs ) {
                             if(user.bookmarks.length) {
                                 var i = 0;
                                 posts.forEach(function(post) {
+                                    posts[i].user_id    =   user._id;
                                     user.bookmarks.forEach(function(bookmark) {
                                         if(bookmark.id_post.toString() == post.id_post.toString()) {
                                             posts[i].is_bookmarked    =   true;
@@ -133,7 +144,15 @@ module.exports = function ( app, tabs ) {
                                     });
                                     i++;
                                 });
+                            }else {
+                                var i = 0;
+
+                                posts.forEach(function(post) {
+                                    posts[i].user_id    =   user._id;
+                                    i++;
+                                });
                             }
+
                             data.posts  =   posts;
 
                             if(is_ajax)
@@ -163,6 +182,7 @@ module.exports = function ( app, tabs ) {
                             if(user.bookmarks.length) {
                                 var i = 0;
                                 posts.forEach(function(post) {
+                                    posts[i].user_id    =   user._id;
                                     user.bookmarks.forEach(function(bookmark) {
                                         if(bookmark.id_post.toString() == post.id_post.toString()) {
                                             posts[i].is_bookmarked    =   true;
@@ -173,6 +193,15 @@ module.exports = function ( app, tabs ) {
                                     i++;
                                 });
                             }
+                            else {
+                                var i = 0;
+
+                                posts.forEach(function(post) {
+                                    posts[i].user_id    =   user._id;
+                                    i++;
+                                });
+                            }
+
                             data.posts  =   posts;
                             if(is_ajax)
                             {
@@ -209,6 +238,7 @@ module.exports = function ( app, tabs ) {
                             if(user.bookmarks.length) {
                                 var i = 0;
                                 posts.forEach(function(post) {
+                                    posts[i].user_id    =   user._id;
                                     user.bookmarks.forEach(function(bookmark) {
                                         if(bookmark.id_post.toString() == post.id_post.toString()) {
                                             posts[i].is_bookmarked  =   true;
@@ -219,6 +249,15 @@ module.exports = function ( app, tabs ) {
                                     i++;
                                 });
                             }
+                            else {
+                                var i = 0;
+
+                                posts.forEach(function(post) {
+                                    posts[i].user_id    =   user._id;
+                                    i++;
+                                });
+                            }
+
                             data.posts  =   posts;
                             if(is_ajax)
                             {
@@ -288,6 +327,7 @@ module.exports = function ( app, tabs ) {
                         if(user.bookmarks.length) {
                             var i = 0;
                             posts.forEach(function(post) {
+                                posts[i].user_id    =   user._id;
                                 user.bookmarks.forEach(function(bookmark) {
                                     if(bookmark.id_post.toString() == post.id_post.toString()) {
                                         posts[i].is_bookmarked    =   true;
@@ -298,6 +338,15 @@ module.exports = function ( app, tabs ) {
                                 i++;
                             });
                         }
+                        else {
+                            var i = 0;
+
+                            posts.forEach(function(post) {
+                                posts[i].user_id    =   user._id;
+                                i++;
+                            });
+                        }
+                        
                         data.posts  =   posts;
                         //res.json(data.posts);
                         res.render(layout, {data: data});

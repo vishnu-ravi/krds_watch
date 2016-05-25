@@ -6,7 +6,7 @@
     <div id="modal_post" class="modal modal-fixed-footer">
         <div class="modal-content">
             <a href="#" class="btnModalClose wave-effect waves-red btn-flat right"><i class="material-icons">clear</i></a>
-            <div id="modal_content"></div>
+            <div id="modal_content" class="hide-on-small-only"></div>
             <div id="block_comment">
                 <div class="progress" id="comment_loader">
                     <div class="indeterminate"></div>
@@ -305,13 +305,12 @@
         $('body').on('click', '.btnCommentEdit', function(e)
         {
             e.preventDefault();
-
             var index   =   $(this).data('index');
             var comment =   $(this).data('comment');
 
-            $(this).parents('.row').find('.postComment .btnPostComment').data('index', index).attr('data-index', index);
-            $(this).parents('.row').find('.postComment .btnPostComment').data('is_edit', true).attr('data-is_edit', true);
-            $(this).parents('.row').find('.postComment .comment').val(comment);
+            $(this).parents('#modal_post').find('.postComment .btnPostComment').data('index', index).attr('data-index', index);
+            $(this).parents('#modal_post').find('.postComment .btnPostComment').data('is_edit', true).attr('data-is_edit', true);
+            $(this).parents('#modal_post').find('.postComment .comment').val(comment);
         });
 
         $('body').on('click', '.editHandler', function(e)

@@ -15,8 +15,8 @@ app.use(session({
 app.engine('hbs', expressHbs({extname:'hbs', defaultLayout:'main.hbs', helpers: require("./public/javascript/app/helper.js").helpers}));
 app.set('view engine', 'hbs');
 
-//mongoose.connect('mongodb://vishnu:vishnu@ds043917.mongolab.com:43917/heroku_brncjw7n');
-mongoose.connect('mongodb://localhost/krds_watch');
+mongoose.connect('mongodb://vishnu:vishnu@ds043917.mongolab.com:43917/heroku_brncjw7n');
+//mongoose.connect('mongodb://localhost/krds_watch');
 
 var  tabs   =   [{
     key: 'home',
@@ -37,6 +37,7 @@ require('./routes/user.js')(app);
 require('./routes/post.js')(app, tabs);
 require('./routes/bookmark.js')(app, tabs);
 require('./routes/comment.js')(app);
+require('./routes/reset.js')(app);
 
 var port    =   process.env.PORT || 3000;
 var server = app.listen(port);
