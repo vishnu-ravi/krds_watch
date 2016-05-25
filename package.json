@@ -4,7 +4,7 @@
   "description": "App to Maintain KRDS Fav Links",
   "main": "app.js",
   "engines": {
-    "node": "0.10.32"
+    "node": "4.2.6"
   },
   "dependencies": {
     "body-parser": "~1.14.2",
