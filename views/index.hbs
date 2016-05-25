@@ -6,7 +6,7 @@
     <div id="modal_post" class="modal modal-fixed-footer">
         <div class="modal-content">
             <a href="#" class="btnModalClose wave-effect waves-red btn-flat right"><i class="material-icons">clear</i></a>
-            <div id="modal_content"></div>
+            <div id="modal_content" class="hide-on-small-only"></div>
             <div id="block_comment">
                 <div class="progress" id="comment_loader">
                     <div class="indeterminate"></div>
@@ -25,7 +25,7 @@
         </div>
     </div>
 </div>
-
+<script src="/javascript/app/notification.js"></script>
 <script>
     function onLoad()
     {
@@ -111,6 +111,14 @@
             success	 :  function(data)
             {
                 $('#modal_post').find('#block_comment .comments').empty().html(data.html);
+
+                $('#comment_form .comment').val('');
+                $('#comment_form .btnPostComment').data('is_edit', '').attr('data-is_edit', '');
+                $('#comment_form .btnPostComment').data('index', '').attr('data-index', '');
+
+                $('.commentdropdown-button').dropdown({
+                    hover: true // Activate on hovere
+                });
             },
             error: function(jXhr)
             {
@@ -145,6 +153,23 @@
             $('#modal_post').closeModal();
         })
         var id_user =   "{{data.user.id_user}}";
+
+        var json    =   "{{data.userJSON}}";
+        var user    =   {};
+        user        =   json.replace(/\\n/g, "\\n")
+                           .replace(/\\'/g, "\\'")
+                           .replace(/\\"/g, '\\"')
+                           .replace(/\\&/g, "\\&")
+                           .replace(/\\r/g, "\\r")
+                           .replace(/\\t/g, "\\t")
+                           .replace(/\\b/g, "\\b")
+                           .replace(/\\f/g, "\\f")
+                           .replace(/[\u0000-\u0019]+/g,"")
+                           .replace(/&quot;/g,'"');
+
+        user =   JSON.parse(user);
+
+        notification.init(id_user);
 
         wall.init();
 
@@ -255,7 +280,7 @@
         $('#search_form').on('submit', function(e) {
             e.preventDefault();
 
-            $('#btn_search').trigger('click');
+            $('.btnSearch').trigger('click');
         });
 
         $('#comment_form').on('submit', function(e) {
@@ -269,6 +294,7 @@
             e.preventDefault();
             var comment =   $.trim($(this).parent().find('.comment').val());
             var id_post =   $(this).data('id_post');
+            var owner_id    =   $(this).data('owner_id');
             var index   =   $(this).data('index');
 
             var method  =   $(this).data('is_edit') == true ? 'put' : 'post';
@@ -298,6 +324,9 @@
                     $this.data('is_edit', false).removeAttr('data-is_edit');
                     $this.parents('.postComment').find('.comment').val('');
                     wall.getComments(id_post);
+
+                    //if(owner_id != id_user)
+                        notification.sendNotifications(id_user, owner_id, id_post, method, user);
                 }
             });
         });
@@ -305,13 +334,12 @@
         $('body').on('click', '.btnCommentEdit', function(e)
         {
             e.preventDefault();
-
             var index   =   $(this).data('index');
             var comment =   $(this).data('comment');
 
-            $(this).parents('.row').find('.postComment .btnPostComment').data('index', index).attr('data-index', index);
-            $(this).parents('.row').find('.postComment .btnPostComment').data('is_edit', true).attr('data-is_edit', true);
-            $(this).parents('.row').find('.postComment .comment').val(comment);
+            $(this).parents('#modal_post').find('.postComment .btnPostComment').data('index', index).attr('data-index', index);
+            $(this).parents('#modal_post').find('.postComment .btnPostComment').data('is_edit', true).attr('data-is_edit', true);
+            $(this).parents('#modal_post').find('.postComment .comment').val(comment);
         });
 
         $('body').on('click', '.editHandler', function(e)
@@ -393,10 +421,12 @@
 
             var html    =   $(this).parents('.post').html();
             var id_post =   $(this).data('id_post');
+            var owner_id    =   $(this).data('owner_id');
             $('#modal_post #modal_content').empty().html(html);
             $('#modal_post').find('.btnComment').remove();
             $('#modal_post').find('.dropdown-button').remove();
             $('#modal_post').find('.btnPostComment').data('id_post', id_post).attr('data-id_post', id_post);
+            $('#modal_post').find('.btnPostComment').data('owner_id', owner_id).attr('data-owner_id', owner_id);
             $('#modal_post').openModal();
             wall.getComments(id_post);
         });

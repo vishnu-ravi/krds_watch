@@ -9,7 +9,7 @@
                         <i class="material-icons bookmark" data-id_bookmark="{{id_bookmark}}" data-id_post="{{id_post}}">bookmark_border</i>
                     {{/if}}
                 </span>
-                {{#ifCond ../user.id_user '==' this.id_user._id}}
+                {{#ifCond this.user_id '==' this.id_user._id}}
                     <ul id="editDropdown_{{_id}}" class="dropdown-content">
                         <li><a href="#" class="btnPostEdit" data-id_post="{{_id}}">Edit</a></li>
                         <li><a href="#" class="btnPostDelete" data-id_post="{{_id}}">Delete</a></li>
@@ -32,7 +32,7 @@
                     </div>
                 </div>
 
-                <p>{{#each tags}} <a href="/home/search/tag/{{this}}" class="chip tooltipped"  data-position="top" data-delay="50" data-tooltip="tag">{{this}}</a>{{/each}}</p>
+                <p style="height:32px;">{{#each tags}} <a href="/home/search/tag/{{this}}" class="chip tooltipped"  data-position="top" data-delay="50" data-tooltip="tag">{{this}}</a>{{/each}}</p>
                 <p>{{description}}</p>
                 <p class="row">
                     <a href="{{url}}" target="_blank">
@@ -46,7 +46,7 @@
             </div>
             <div class="card-action">
                 <span class="left category">{{#each categories}} <a href="/home/search/category/{{this}}" class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="category">{{this}}</a>{{/each}}</span>
-                <span class="btnComment right valign-wrapper waves-effect waves-red" data-id_post="{{_id}}"><i class="material-icons">comment</i> Comments</span>
+                <span class="btnComment right valign-wrapper waves-effect waves-grey" data-owner_id="{{this.id_user._id}}" data-id_post="{{_id}}"><i class="material-icons">mode_comment</i> Comments</span>
             </div>
         </div>
     </div>

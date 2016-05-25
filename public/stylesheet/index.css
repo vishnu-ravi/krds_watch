@@ -50,6 +50,7 @@ a {
 
 .postImg {
     height: 100px;
+    background-size: contain !important;
 }
 
 /*Search Style*/
@@ -92,6 +93,7 @@ li.search {
     color: black;
 }
 
+
 #search_bar_mobile {
     display: inline;
     width: 75%;
@@ -103,12 +105,39 @@ li.search {
 }
 
 /* Dialog Style*/
+=======
+.search-wrapper i.material-icons:hover {
+    color: #0d47a1;
+}
+
 .postBookmarkIcon {
     position: absolute;
     top: -2%;
     left: 1%;
     cursor: pointer;
 }
+
+.container {
+    width: 95%
+}
+
+.card.small .card-content {
+    max-height: 85%;
+}
+
+.previewDescription {
+    display: block;
+    height: 6.5em;
+}
+
+.card .card-action {
+    padding: 5px;
+}
+
+.card-action {
+    padding: 5px;
+}
+
 
 .btnComment {
     cursor: pointer;
@@ -194,6 +223,22 @@ li.search {
     width: 100%
 }
 
+.fixed-action-btn ul {
+    position: inherit;
+}
+
+.commentEditButton {
+    position: inherit;
+}
+
+nav ul a span.badge {
+    position: relative;
+    margin-left: 4px;
+    line-height: 0;
+    left: 3px;
+    top: -45px;
+}
+
 /*Media Queries for Mobile*/
 @media only screen and (max-device-width: 480px) {
     .btnPostComment {
@@ -206,6 +251,31 @@ li.search {
 
     .modal-content .card .card-content {
         padding: 10px;
+    }
+
+    #block_comment .comments {
+        overflow-y: scroll;
+        height: 320px;
+        width: 100%;
+    }
+
+    #modal_post .userInfo {
+        width: 75%;
+    }
+
+    .commentUser {
+        margin-top: 25%;
+        margin-left: 5%;
+    }
+
+    .btnModalClose {
+        top: -5%;
+        left: 15%;
+    }
+
+    .commentdropdown-button {
+        position: relative;
+        left: 10px;
     }
 }
 

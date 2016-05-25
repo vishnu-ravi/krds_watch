@@ -17,20 +17,27 @@ module.exports = function ( app, tabs ) {
         if(typeof email !== 'undefined') {
             var Users   =   require('../models/users.js');
             require('mongoose-pagination');
+
             Users.findOne({email: email}, function(err, user)
             {
                 if( ! err)
                 {
+                    if(typeof user === undefined || user == null) {
+                        res.redirect('/');
+                        return;
+                    }
+
                     layout      =   'index';
                     data.user   =   user;
-
+                    data.userJSON   =   JSON.stringify(user);
+                    
                     if(user.is_admin)
                         tabs.push({key: 'tacking', name: 'Tracking'});
                 }
 
                 data.tabs       =   tabs;
                 data.activeKey  =   'home';
-                
+
                 var Posts   =   require('../models/posts.js');
 
                 Posts.find({}).paginate(page, item_per_page).populate('id_user').populate('comments.id_user')
@@ -38,6 +45,7 @@ module.exports = function ( app, tabs ) {
                     if(user.bookmarks.length) {
                         var i = 0;
                         posts.forEach(function(post) {
+                            posts[i].user_id    =   user._id;
                             user.bookmarks.forEach(function(bookmark) {
                                 if(bookmark.id_post.toString() == post.id_post.toString()) {
                                     posts[i].is_bookmarked    =   true;
@@ -48,6 +56,15 @@ module.exports = function ( app, tabs ) {
                             i++;
                         });
                     }
+                    else {
+                        var i = 0;
+
+                        posts.forEach(function(post) {
+                            posts[i].user_id    =   user._id;
+                            i++;
+                        });
+                    }
+
                     data.posts  =   posts;
 
                     if(is_ajax)
@@ -104,8 +121,14 @@ module.exports = function ( app, tabs ) {
             {
                 if( ! err)
                 {
+                    if(typeof user === undefined || user == null) {
+                        res.redirect('/');
+                        return;
+                    }
+
                     layout      =   'index';
                     data.user   =   user;
+                    data.userJSON   =   JSON.stringify(user);
 
                     if(user.is_admin)
                         tabs.push({key: 'tracking', name: 'Tracking'});
@@ -124,6 +147,7 @@ module.exports = function ( app, tabs ) {
                             if(user.bookmarks.length) {
                                 var i = 0;
                                 posts.forEach(function(post) {
+                                    posts[i].user_id    =   user._id;
                                     user.bookmarks.forEach(function(bookmark) {
                                         if(bookmark.id_post.toString() == post.id_post.toString()) {
                                             posts[i].is_bookmarked    =   true;
@@ -133,7 +157,15 @@ module.exports = function ( app, tabs ) {
                                     });
                                     i++;
                                 });
+                            }else {
+                                var i = 0;
+
+                                posts.forEach(function(post) {
+                                    posts[i].user_id    =   user._id;
+                                    i++;
+                                });
                             }
+
                             data.posts  =   posts;
 
                             if(is_ajax)
@@ -163,6 +195,7 @@ module.exports = function ( app, tabs ) {
                             if(user.bookmarks.length) {
                                 var i = 0;
                                 posts.forEach(function(post) {
+                                    posts[i].user_id    =   user._id;
                                     user.bookmarks.forEach(function(bookmark) {
                                         if(bookmark.id_post.toString() == post.id_post.toString()) {
                                             posts[i].is_bookmarked    =   true;
@@ -173,6 +206,15 @@ module.exports = function ( app, tabs ) {
                                     i++;
                                 });
                             }
+                            else {
+                                var i = 0;
+
+                                posts.forEach(function(post) {
+                                    posts[i].user_id    =   user._id;
+                                    i++;
+                                });
+                            }
+
                             data.posts  =   posts;
                             if(is_ajax)
                             {
@@ -197,9 +239,9 @@ module.exports = function ( app, tabs ) {
 
                     Posts.find({
                              $or: [
-                                 {categories: {'$regex': search}},
-                                 {tags: {'$regex': search}},
-                                 {description: {'$regex': search}}
+                                 {categories: {$regex: new RegExp("^" + search.toLowerCase(), "i")}},
+                                 {tags: {$regex: new RegExp("^" + search.toLowerCase(), "i")}},
+                                 {description: {$regex: new RegExp("^" + search.toLowerCase(), "i")}}
                              ]
                          })
                         .paginate(page, item_per_page)
@@ -209,6 +251,7 @@ module.exports = function ( app, tabs ) {
                             if(user.bookmarks.length) {
                                 var i = 0;
                                 posts.forEach(function(post) {
+                                    posts[i].user_id    =   user._id;
                                     user.bookmarks.forEach(function(bookmark) {
                                         if(bookmark.id_post.toString() == post.id_post.toString()) {
                                             posts[i].is_bookmarked  =   true;
@@ -219,6 +262,15 @@ module.exports = function ( app, tabs ) {
                                     i++;
                                 });
                             }
+                            else {
+                                var i = 0;
+
+                                posts.forEach(function(post) {
+                                    posts[i].user_id    =   user._id;
+                                    i++;
+                                });
+                            }
+
                             data.posts  =   posts;
                             if(is_ajax)
                             {
@@ -252,7 +304,7 @@ module.exports = function ( app, tabs ) {
     {
         var Users   =   require('../models/users.js');
         var data    =   {};
-
+        var is_ajax =   req.xhr;
         var email   =   req.session.email;
         var layout  =   'login';
         var page    =   typeof req.params.page == 'undefine' ? 1 : req.params.page;
@@ -265,12 +317,20 @@ module.exports = function ( app, tabs ) {
 
         if(typeof email !== 'undefined' || typeof req.params.id_user == 'undefined') {
             var Users   =   require('../models/users.js');
+            var page    =   typeof req.query.page == 'undefined' ? 1 : req.query.page;
+            require('mongoose-pagination');
 
             Users.findOne({email: email}, function(err, user)
             {
+                if(typeof user === undefined || user == null) {
+                    res.redirect('/');
+                    return;
+                }
+
                 if( ! err) {
                     layout      =   'index';
                     data.user   =   user;
+                    data.userJSON   =   JSON.stringify(user);
 
                     if(user.is_admin)
                         tabs.push({key: 'tracking', name: 'Tracking'});
@@ -282,12 +342,14 @@ module.exports = function ( app, tabs ) {
                 var Posts   =   require('../models/posts.js');
 
                 Posts.find({ id_user: req.params.id_user })
+                    .paginate(page, item_per_page)
                     .populate('id_user')
                     .populate('comments.id_user')
                     .exec(function(error, posts) {
                         if(user.bookmarks.length) {
                             var i = 0;
                             posts.forEach(function(post) {
+                                posts[i].user_id    =   user._id;
                                 user.bookmarks.forEach(function(bookmark) {
                                     if(bookmark.id_post.toString() == post.id_post.toString()) {
                                         posts[i].is_bookmarked    =   true;
@@ -298,9 +360,33 @@ module.exports = function ( app, tabs ) {
                                 i++;
                             });
                         }
+                        else {
+                            var i = 0;
+
+                            posts.forEach(function(post) {
+                                posts[i].user_id    =   user._id;
+                                i++;
+                            });
+                        }
+
                         data.posts  =   posts;
-                        //res.json(data.posts);
-                        res.render(layout, {data: data});
+
+                        if(is_ajax)
+                        {
+                            var renderedViews   =   {};
+                            res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
+                            {
+                                renderedViews.html  =   html;
+                                renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
+
+                                res.json(renderedViews);
+                            });
+                        }
+                        else
+                        {
+                            data.action =   '/home';
+                            res.render(layout, {data: data});
+                        }
                     });
             });
         }

@@ -1,20 +1,23 @@
 module.exports  =   function ( app, tabs) {
     var Users   =   require('../models/users.js');
-
+    var item_per_page   =   10;
     app.route('/bookmark').get(function (req, res) {
         var email   =   req.session.email;
 
-        if(typeof email === 'undefined') {
+        if(typeof email === undefined) {
             res.redirect('/');
             return;
         }
 
         var data    =   {};
+        var is_ajax =   req.xhr;
+
         Users.findOne({email: email}, function(err, user)
         {
             if( ! err) {
                 data.user   =   user;
-
+                data.userJSON   =   JSON.stringify(user);
+                
                 if(user.is_admin)
                     tabs.push({key: 'tacking', name: 'Tracking'});
             }
@@ -35,14 +38,16 @@ module.exports  =   function ( app, tabs) {
                     id_posts.push(bookmark.id_post.toString());
                 });
 
-                var page    =   typeof req.params.page == 'undefine' ? 1 : req.params.page;
+                var page    =   typeof req.query.page == 'undefined' ? 1 : req.query.page;
 
                 Posts.find({_id: { $in: id_posts}})
+                    .paginate(page, item_per_page)
                     .populate('id_user')
                     .populate('comments.id_user')
                     .exec(function(err, posts){
                         var i = 0;
                         posts.forEach(function(post) {
+                            posts[i].user_id    =   user._id;
                             user.bookmarks.forEach(function(bookmark) {
                                 if(bookmark.id_post.toString() == post.id_post.toString()) {
                                     posts[i].is_bookmarked    =   true;
@@ -53,8 +58,23 @@ module.exports  =   function ( app, tabs) {
                             i++;
                         });
                         data.posts  =   posts;
-                        //res.json(data.posts);
-                        res.render('index', {data: data});
+
+                        if(is_ajax)
+                        {
+                            var renderedViews   =   {};
+                            res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
+                            {
+                                renderedViews.html  =   html;
+                                renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
+
+                                res.json(renderedViews);
+                            });
+                        }
+                        else
+                        {
+                            data.action =   '/bookmark';
+                            res.render('index', {data: data});
+                        }
                 });
             }
             else {

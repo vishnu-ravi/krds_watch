@@ -128,6 +128,8 @@
             initialTags: initialTags,
             delimiter: ', ', /* space and comma */
             placeholder: 'Enter Tags ...',
+            maxTags: 4,
+            maxLength: 30,
             autocomplete: {
                 delay: 0, // show suggestions immediately
                 position: { collision: 'flip' }, // automatic menu position up/down
@@ -138,6 +140,8 @@
         $('#categories').tagEditor({
             initialTags: initalCategories,
             delimiter: ', ', /* space and comma */
+            maxTags: 3,
+            maxLength: 30,
             placeholder: 'Enter Categories ...',
             forceLowercase: false,
             removeDuplicates: true,
