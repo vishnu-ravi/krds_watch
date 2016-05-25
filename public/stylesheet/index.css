@@ -13,6 +13,7 @@ a {
 
 .postImg {
     height: 100px;
+    background-size: contain !important;
 }
 .mobileUserImage {
     position: relative;
@@ -195,6 +196,14 @@ li.search {
 
 .modal-content .card-content {
     width: 100%
+}
+
+.fixed-action-btn ul {
+    position: inherit;
+}
+
+.commentEditButton {
+    position: inherit;
 }
 
 @media only screen and (max-device-width: 480px) {

@@ -111,6 +111,15 @@
             success	 :  function(data)
             {
                 $('#modal_post').find('#block_comment .comments').empty().html(data.html);
+
+                $('.commentdropdown-button').dropdown({
+                    hover: true // Activate on hovere
+                });
+
+                $('#comment_form .comment').val('');
+                $('#comment_form .btnPostComment').data('id_post', '').attr('data-id_post', '');
+                $('#comment_form .btnPostComment').data('is_edit', '').attr('data-is_edit', '');
+                $('#comment_form .btnPostComment').data('index', '').attr('data-index', '');
             },
             error: function(jXhr)
             {

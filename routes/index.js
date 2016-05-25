@@ -291,7 +291,7 @@ module.exports = function ( app, tabs ) {
     {
         var Users   =   require('../models/users.js');
         var data    =   {};
-
+        var is_ajax =   req.xhr;
         var email   =   req.session.email;
         var layout  =   'login';
         var page    =   typeof req.params.page == 'undefine' ? 1 : req.params.page;
@@ -304,7 +304,9 @@ module.exports = function ( app, tabs ) {
 
         if(typeof email !== 'undefined' || typeof req.params.id_user == 'undefined') {
             var Users   =   require('../models/users.js');
-
+            var page    =   typeof req.query.page == 'undefined' ? 1 : req.query.page;
+            require('mongoose-pagination');
+            
             Users.findOne({email: email}, function(err, user)
             {
                 if( ! err) {
@@ -321,6 +323,7 @@ module.exports = function ( app, tabs ) {
                 var Posts   =   require('../models/posts.js');
 
                 Posts.find({ id_user: req.params.id_user })
+                    .paginate(page, item_per_page)
                     .populate('id_user')
                     .populate('comments.id_user')
                     .exec(function(error, posts) {
@@ -346,10 +349,25 @@ module.exports = function ( app, tabs ) {
                                 i++;
                             });
                         }
-                        
+
                         data.posts  =   posts;
-                        //res.json(data.posts);
-                        res.render(layout, {data: data});
+
+                        if(is_ajax)
+                        {
+                            var renderedViews   =   {};
+                            res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
+                            {
+                                renderedViews.html  =   html;
+                                renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
+
+                                res.json(renderedViews);
+                            });
+                        }
+                        else
+                        {
+                            data.action =   '/home';
+                            res.render(layout, {data: data});
+                        }
                     });
             });
         }
