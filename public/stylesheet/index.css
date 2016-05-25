@@ -218,6 +218,31 @@ li.search {
     .modal-content .card .card-content {
         padding: 10px;
     }
+
+    #block_comment .comments {
+        overflow-y: scroll;
+        height: 320px;
+        width: 100%;
+    }
+
+    #modal_post .userInfo {
+        width: 75%;
+    }
+
+    .commentUser {
+        margin-top: 25%;
+        margin-left: 5%;
+    }
+
+    .btnModalClose {
+        top: -5%;
+        left: 15%;
+    }
+
+    .commentdropdown-button {
+        position: relative;
+        left: 10px;
+    }
 }
 
 

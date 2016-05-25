@@ -1,5 +1,5 @@
 {{#each post.comments}}
-    <div class="userComment row">
+    <div class="userComment row hide-on-small-only">
         <div class="col s4">
             <a href="/users/{{this.id_user._id}}" class="">
                 <span class="left" style="display:block; width: 100%;">
@@ -24,5 +24,31 @@
                 <a class="dropdown-button commentdropdown-button" href="#" data-activates="commentEditDropdown_{{_id}}"><i class="material-icons">arrow_drop_down</i></a>
             </div>
         {{/ifCond}}
+    </div>
+    <!--Mobile Template -->
+    <div class="userComment row hide-on-med-and-up">
+
+        <div class="col s12">
+            {{#ifCond this.owner_id '==' this.id_user._id}}
+                <ul id="commentEditDropdown_{{_id}}" class="dropdown-content">
+                    <li><a href="#" class="btnCommentEdit" data-comment="{{this.comment}}" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{this.id_post}}"><i class="material-icons">mode_edit</i></a></li>
+                    <li><a href="#" class="btnCommentDelete" data-id="{{_id}}" data-index="{{@index}}" data-id_post="{{this.id_post}}" data-date="{{this.date}}"><i class="material-icons">delete</i></a></li>
+                </ul>
+                <div class="right">
+                    <a class="dropdown-button commentdropdown-button" onclick="return false;" href="#" data-activates="commentEditDropdown_{{_id}}"><i class="material-icons">arrow_drop_down</i></a>
+                </div>
+            {{/ifCond}}
+
+            <a href="/users/{{this.id_user._id}}" class="left">
+                <div style="display:block; width: 100%;">
+                    <img src="{{this.id_user.picture}}" alt="{{this.id_user.name}}" class="userImg circle responsive-img z-depth-2 left" height="50px" width="50px" />
+                    <div class="left userInfo">
+                        <div class="userInfoData">{{this.id_user.name}}</div>
+                        <div class="dateInfo commentDate truncate">{{#dateFormat this.date}}{{/dateFormat}}</div>
+                    </div>
+                </div>
+            </a>
+            <div class="commentUser">{{this.comment}}</div>
+        </div>
     </div>
 {{/each}}
