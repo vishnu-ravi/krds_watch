@@ -150,7 +150,7 @@
 
         $('.btnModalClose').on('click', function(e) {
             e.preventDefault();
-
+            $('#block_comment .comments').empty();
             $('#modal_post').closeModal();
         })
         var id_user =   "{{data.user.id_user}}";

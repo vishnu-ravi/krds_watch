@@ -2,7 +2,7 @@
     <div class="navbar-fixed">
         <nav class="blue darken-4">
             <div class="nav-wrapper">
-                <a href="/home" class="brand-logo center headerTitle">KRDS Watch</a>
+                <a href="/home" class="brand-logo center headerTitle flow-text">KRDS Watch</a>
                 <ul class="left hide-on-med-and-down">
                     {{#each tabs}}
                         <li class="{{active}}">
@@ -53,6 +53,7 @@
                 {{#ifCond activeKey '!=' 'post'}}
                     <a href="#" class="hide-on-large-only right mobileSearchIcon"><i class="material-icons">search</i></a>
                 {{/ifCond}}
+                <a href="#" class="hide-on-large-only right btnNotifications clickInActive"><i class="material-icons clickInActive">public</i><span class="badge red darken-4 notificationCount clickInActive">{{notification_count}}</span></a>
             </div>
         </nav>
     </div>
@@ -71,9 +72,8 @@
     </div>
 {{/ifCond}}
 <div id="block_notifications" class="blockNotifications light-blue lighten-5 defaultHidden">
-    <ul class="notificationContainer" id="notification_container">
-
-    </ul>
+    <a href="#" id="btn_notificaiton_back" class="left hide-on-large-only"><i class="material-icons">arrow_back</i></a>
+    <ul class="notificationContainer" id="notification_container"></ul>
     <div class="progress" id="notification_loader">
         <div class="indeterminate"></div>
     </div>
