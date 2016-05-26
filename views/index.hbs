@@ -26,6 +26,7 @@
     </div>
 </div>
 <script src="/javascript/app/notification.js"></script>
+<script src="/javascript/app/common.js"></script>
 <script>
     function onLoad()
     {
@@ -325,7 +326,7 @@
                     $this.parents('.postComment').find('.comment').val('');
                     wall.getComments(id_post);
 
-                    //if(owner_id != id_user)
+                    if(owner_id != id_user)
                         notification.sendNotifications(id_user, owner_id, id_post, method, user);
                 }
             });
@@ -391,7 +392,9 @@
             var id_post =   $(this).data('id_post');
             var index   =   $(this).data('index');
             var id      =   $(this).data('id');
-            var date      =   $(this).data('date');
+            var date        =   $(this).data('date');
+            var owner_id    =   $('#modal_post').data('owner_id');
+
             $.ajax({
                 cache: false,
                 type: 'delete',
@@ -411,6 +414,9 @@
                 success: function(data) {
                     wall.showMessage('success', data.msg);
                     wall.getComments(id_post);
+
+                    if(owner_id != id_user)
+                        notification.sendNotifications(id_user, owner_id, id_post, 'delete', user);
                 }
             });
         });
@@ -422,11 +428,13 @@
             var html    =   $(this).parents('.post').html();
             var id_post =   $(this).data('id_post');
             var owner_id    =   $(this).data('owner_id');
+
             $('#modal_post #modal_content').empty().html(html);
             $('#modal_post').find('.btnComment').remove();
             $('#modal_post').find('.dropdown-button').remove();
             $('#modal_post').find('.btnPostComment').data('id_post', id_post).attr('data-id_post', id_post);
             $('#modal_post').find('.btnPostComment').data('owner_id', owner_id).attr('data-owner_id', owner_id);
+            $('#modal_post').data('owner_id', owner_id).attr('data-owner_id', owner_id);
             $('#modal_post').openModal();
             wall.getComments(id_post);
         });

@@ -18,7 +18,8 @@ function onSignIn(googleUser) {
     console.log('Email: ' + profile.getEmail());
     var domain = profile.getEmail().replace(/.*@/, "");
 
-    if(domain.indexOf("krds") == -1)
+    if(0)
+    //if(domain.indexOf("krds") == -1)
     {
         Materialize.toast('You are not a KRDS user', 4000, "rounded");
 

@@ -1,5 +1,9 @@
 module.exports  =   function ( app, tabs) {
     var Users   =   require('../models/users.js');
+    var Notifications   =   require('../models/notifications.js');
+    var q       =   require('q');
+    require('mongoose-pagination');
+
     var item_per_page   =   10;
     app.route('/bookmark').get(function (req, res) {
         var email   =   req.session.email;
@@ -14,13 +18,22 @@ module.exports  =   function ( app, tabs) {
 
         Users.findOne({email: email}, function(err, user)
         {
-            if( ! err) {
-                data.user   =   user;
-                data.userJSON   =   JSON.stringify(user);
-                
-                if(user.is_admin)
-                    tabs.push({key: 'tacking', name: 'Tracking'});
+            if(err) {
+                data.msg    =   err;
+                res.render('error', {data: data});
+                return;
             }
+
+            if(typeof user === undefined || user == null) {
+                res.redirect('/');
+                return;
+            }
+
+            data.user   =   user;
+            data.userJSON   =   JSON.stringify(user);
+
+            if(user.is_admin)
+                tabs.push({key: 'tacking', name: 'Tracking'});
 
             Object.keys(tabs).forEach(function(key) {
                 tabs[key].active    =   '';
@@ -31,6 +44,13 @@ module.exports  =   function ( app, tabs) {
             data.activeKey  =   'bookmark';
             var Posts       =   require('../models/posts.js');
 
+            var promises    =   [];
+
+            if(typeof user.data_notification_seen === undefined || user.data_notification_seen == null)
+                promises.push(Notifications.count({owner_id: user._id}).exec());
+            else
+                promises.push(Notifications.count({owner_id: user._id, date_sent: {$gt: user.data_notification_seen}}).exec());
+
             if(user.bookmarks.length) {
                 var id_posts    =   [];
                 user.bookmarks.forEach(function(bookmark)
@@ -40,49 +60,56 @@ module.exports  =   function ( app, tabs) {
 
                 var page    =   typeof req.query.page == 'undefined' ? 1 : req.query.page;
 
-                Posts.find({_id: { $in: id_posts}})
-                    .paginate(page, item_per_page)
-                    .populate('id_user')
-                    .populate('comments.id_user')
-                    .exec(function(err, posts){
-                        var i = 0;
-                        posts.forEach(function(post) {
-                            posts[i].user_id    =   user._id;
-                            user.bookmarks.forEach(function(bookmark) {
-                                if(bookmark.id_post.toString() == post.id_post.toString()) {
-                                    posts[i].is_bookmarked    =   true;
-                                    posts[i].id_bookmark    =   bookmark._id;
-                                    return;
-                                }
-                            });
-                            i++;
+                promises.push(Posts.count({_id: { $in: id_posts}}).paginate(page, item_per_page).populate('id_user').populate('comments.id_user').exec());
+                promises.push(Posts.find({_id: { $in: id_posts}}).paginate(page, item_per_page).populate('id_user').populate('comments.id_user').sort({date_posted: 'desc'}).exec());
+
+                q.all(promises).then(function(results) {
+                    var notification_count  =   results[0];
+                    var posts_count         =   results[1];
+                    var posts               =   results[2];
+
+                    var i = 0;
+                    posts.forEach(function(post) {
+                        posts[i].user_id    =   user._id;
+                        user.bookmarks.forEach(function(bookmark) {
+                            if(bookmark.id_post.toString() == post.id_post.toString()) {
+                                posts[i].is_bookmarked    =   true;
+                                posts[i].id_bookmark    =   bookmark._id;
+                                return;
+                            }
                         });
-                        data.posts  =   posts;
+                        i++;
+                    });
+                    data.posts  =   posts;
 
-                        if(is_ajax)
+                    if(is_ajax)
+                    {
+                        var renderedViews   =   {};
+                        res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
                         {
-                            var renderedViews   =   {};
-                            res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
-                            {
-                                renderedViews.html  =   html;
-                                renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
+                            renderedViews.html  =   html;
+                            renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
 
-                                res.json(renderedViews);
-                            });
-                        }
-                        else
-                        {
-                            data.action =   '/bookmark';
-                            res.render('index', {data: data});
-                        }
+                            res.json(renderedViews);
+                        });
+                    }
+                    else
+                    {
+                        data.notification_count =   notification_count == 0 ? '' : notification_count;
+                        data.action =   '/bookmark';
+                        res.render('index', {data: data});
+                    }
                 });
             }
             else {
-                res.render('empty_bookmark', {data: data});
+                q.all(promises).then(function(results) {
+                    var notification_count  =   results[0];
+                    data.notification_count =   notification_count == 0 ? '' : notification_count;
+                    res.render('empty_bookmark', {data: data});
+                });
             }
 
         });
-
     }).post(function(req, res)
     {
         Users.findByIdAndUpdate(req.body.id_user,

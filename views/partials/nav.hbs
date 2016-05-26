@@ -28,7 +28,7 @@
                         </a>
                     </li>
                     <li style="height: 65px;">
-                        <a href="#" class="btnNotifications" style="height:100%;"><i class="material-icons">public</i><span class="new badge">122</span></a>
+                        <a href="#" class="btnNotifications" style="height:100%;"><i class="material-icons">public</i><span class="badge red darken-4 notificationCount">{{notification_count}}</span></a>
                     </li>
                     <li style="height: 65px;">
                         <a href="#" class="btnLogout"><i class="material-icons">power_settings_new</i></a>
@@ -70,3 +70,11 @@
         </nav>
     </div>
 {{/ifCond}}
+<div id="block_notifications" class="blockNotifications light-blue lighten-5 defaultHidden">
+    <ul class="notificationContainer" id="notification_container">
+
+    </ul>
+    <div class="progress" id="notification_loader">
+        <div class="indeterminate"></div>
+    </div>
+</div>

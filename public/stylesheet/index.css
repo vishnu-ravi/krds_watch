@@ -4,7 +4,8 @@ a {
 }
 
 .container {
-    width: 95%
+    width: 95%;
+    margin-top: 10px;
 }
 
 .defaultHidden{
@@ -168,8 +169,8 @@ li.search {
 }
 
 #block_comment .comments {
-    overflow-y: scroll;
-    height: 230px;
+    overflow-y: auto;
+    max-height: 230px;
 }
 
 #comment_form {
@@ -235,8 +236,62 @@ nav ul a span.badge {
     position: relative;
     margin-left: 4px;
     line-height: 0;
-    left: 3px;
-    top: -45px;
+    left: 10px;
+    top: -47px;
+    color: white;
+}
+
+nav ul a span.badge:empty {
+    color: white;
+    background-color: transparent !important;
+}
+
+
+/*Notifications*/
+.blockNotifications {
+    position: absolute;
+    z-index: 999;
+    right: 75px;
+    top: 64px;
+}
+
+.notificationContainer:before {
+    content: '';
+    border-width: 10px;
+    border-style: solid;
+    border-color: transparent transparent #e1f5fe;
+    position: absolute;
+    top: -20px;
+    right: 0;
+    z-index: 1000;
+}
+
+.notificationContainer {
+    margin: 0;
+    max-height: 400px;
+    width: 375px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.notificationContainer li {
+    opacity: 0;
+    height: 65px;
+    padding: 40px 10px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+}
+
+.notificationContainer li:last-child {
+    border-bottom: none;
+}
+
+.notificationContainer li:hover {
+    background-color: #80cbc4 !important;
+}
+
+
+.notificationContainer li span {
+    margin-left: 10px;
 }
 
 /*Media Queries for Mobile*/
@@ -254,8 +309,8 @@ nav ul a span.badge {
     }
 
     #block_comment .comments {
-        overflow-y: scroll;
-        height: 320px;
+        overflow-y: auto;
+        max-height: 320px;
         width: 100%;
     }
 

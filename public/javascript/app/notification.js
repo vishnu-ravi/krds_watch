@@ -1,11 +1,9 @@
-
 var Notification    =   function() {
     this.socket =   null;
 };
 
 Notification.prototype.init =   function(id_user) {
-    this.socket  =   io();
-    console.log(this.socket);
+    this.socket  =   io();    
     var userInfo    =   {id_user: id_user};
     this.socket.emit('register', userInfo);
     this.bindEvents();
@@ -13,7 +11,12 @@ Notification.prototype.init =   function(id_user) {
 
 Notification.prototype.bindEvents   =   function() {
     this.socket.on('notification', function(data) {
-        console.log(data);
+        Materialize.toast(data.msg, 4000, "rounded");
+        var count   =   $('.btnNotifications').find('.badge').html();
+
+        count       =   count == '' ? 1 : Number(count) + 1;
+
+        $('.btnNotifications').find('.badge').html(count);
     });
 };
 
@@ -23,12 +26,10 @@ Notification.prototype.sendNotifications    =   function(id_user, owner_id, id_p
     data['post_owner_id']   =   owner_id;
     data['id_user']         =   id_user;
     data['id_post']         =   id_post;
-    data['method']          =   method == 'put' ? 'edit' : 'new';
+    data['method']          =   method;
     data['user_name']       =   user.name;
 
     this.socket.emit('comment', data);
 };
 
 var notification    =   new Notification();
-
-window.Notification =   notification;

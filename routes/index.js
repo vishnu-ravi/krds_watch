@@ -1,95 +1,9 @@
 module.exports = function ( app, tabs ) {
     var item_per_page   =   10;
-    app.route(['/home', '/']).get(function (req, res) {
-        var email   =   req.session.email;
-        var layout  =   'login';
-        var data    =   {};
-
-        var page    =   typeof req.query.page == 'undefined' ? 1 : req.query.page;
-        var is_ajax =   req.xhr;
-
-        Object.keys(tabs).forEach(function(key) {
-            tabs[key].active    =   '';
-        });
-
-        tabs[0].active  =   'active';
-
-        if(typeof email !== 'undefined') {
-            var Users   =   require('../models/users.js');
-            require('mongoose-pagination');
-
-            Users.findOne({email: email}, function(err, user)
-            {
-                if( ! err)
-                {
-                    if(typeof user === undefined || user == null) {
-                        res.redirect('/');
-                        return;
-                    }
-
-                    layout      =   'index';
-                    data.user   =   user;
-                    data.userJSON   =   JSON.stringify(user);
-                    
-                    if(user.is_admin)
-                        tabs.push({key: 'tacking', name: 'Tracking'});
-                }
-
-                data.tabs       =   tabs;
-                data.activeKey  =   'home';
-
-                var Posts   =   require('../models/posts.js');
-
-                Posts.find({}).paginate(page, item_per_page).populate('id_user').populate('comments.id_user')
-                .exec(function(err, posts) {
-                    if(user.bookmarks.length) {
-                        var i = 0;
-                        posts.forEach(function(post) {
-                            posts[i].user_id    =   user._id;
-                            user.bookmarks.forEach(function(bookmark) {
-                                if(bookmark.id_post.toString() == post.id_post.toString()) {
-                                    posts[i].is_bookmarked    =   true;
-                                    posts[i].id_bookmark    =   bookmark._id;
-                                    return;
-                                }
-                            });
-                            i++;
-                        });
-                    }
-                    else {
-                        var i = 0;
-
-                        posts.forEach(function(post) {
-                            posts[i].user_id    =   user._id;
-                            i++;
-                        });
-                    }
-
-                    data.posts  =   posts;
-
-                    if(is_ajax)
-                    {
-                        var renderedViews   =   {};
-                        res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
-                        {
-                            renderedViews.html  =   html;
-                            renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
-
-                            res.json(renderedViews);
-                        });
-                    }
-                    else
-                    {
-                        data.action =   '/home';
-                        res.render(layout, {data: data});
-                    }
-                });
-            });
-        }
-        else {
-            res.render(layout, data);
-        }
-    });
+    var Posts           =   require('../models/posts.js');
+    var Users           =   require('../models/users.js');
+    var Notifications   =   require('../models/notifications.js');
+    var q               =   require('q');
 
     app.route('/logout').get(function(req, res)
     {
@@ -98,301 +12,155 @@ module.exports = function ( app, tabs ) {
         });
     });
 
-    app.route('/home/search/:type/:key').get(function (req, res)
-    {
-        var Users   =   require('../models/users.js');
+    function common(req, res, type) {
+        var email   =   req.session.email;
+        var layout  =   'login';
         var data    =   {};
         var is_ajax =   req.xhr;
-        var email   =   req.session.email;
         var page    =   typeof req.query.page == 'undefined' ? 1 : req.query.page;
+        var is_ajax =   req.xhr;
 
-        var layout  =    'login';
         Object.keys(tabs).forEach(function(key) {
             tabs[key].active    =   '';
         });
 
         tabs[0].active  =   'active';
 
-        if(typeof email !== 'undefined')
-        {
-            require('mongoose-pagination');
-            var Users   =   require('../models/users.js');
-            Users.findOne({email: email}, function(err, user)
-            {
-                if( ! err)
-                {
-                    if(typeof user === undefined || user == null) {
-                        res.redirect('/');
-                        return;
-                    }
+        if(typeof email === undefined || email == null) {
+            res.render(layout, data);
+            return;
+        }
 
-                    layout      =   'index';
-                    data.user   =   user;
-                    data.userJSON   =   JSON.stringify(user);
+        require('mongoose-pagination');
 
-                    if(user.is_admin)
-                        tabs.push({key: 'tracking', name: 'Tracking'});
-                }
+        Users.findOne({email: email}, function(err, user) {
+            if(err) {
+                data.msg    =   err;
+                res.render('error', {data: data});
+                return;
+            }
 
-                data.tabs       =   tabs;
-                data.activeKey  =   'home';
+            if(typeof user === undefined || user == null) {
+                res.redirect('/');
+                return;
+            }
 
-                var Posts   =   require('../models/posts.js');
-                if(req.params.type == 'tag') {
-                    Posts.find({ tags: req.params.key })
-                        .paginate(page, item_per_page)
-                        .populate('id_user')
-                        .populate('comments.id_user')
-                        .exec(function(error, posts) {
-                            if(user.bookmarks.length) {
-                                var i = 0;
-                                posts.forEach(function(post) {
-                                    posts[i].user_id    =   user._id;
-                                    user.bookmarks.forEach(function(bookmark) {
-                                        if(bookmark.id_post.toString() == post.id_post.toString()) {
-                                            posts[i].is_bookmarked    =   true;
-                                            posts[i].id_bookmark    =   bookmark._id;
-                                            return;
-                                        }
-                                    });
-                                    i++;
-                                });
-                            }else {
-                                var i = 0;
+            layout          =   'index';
+            data.user       =   user;
+            data.userJSON   =   JSON.stringify(user);
 
-                                posts.forEach(function(post) {
-                                    posts[i].user_id    =   user._id;
-                                    i++;
-                                });
-                            }
+            if(user.is_admin)
+                tabs.push({key: 'tacking', name: 'Tracking'});
 
-                            data.posts  =   posts;
+            data.tabs       =   tabs;
+            data.activeKey  =   'home';
 
-                            if(is_ajax)
-                            {
-                                var renderedViews   =   {};
-                                res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
-                                {
-                                    renderedViews.html  =   html;
-                                    renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
+            var promises    =   [];
 
-                                    res.json(renderedViews);
-                                });
-                            }
-                            else
-                            {
-                                data.action =   req.url;
-                                res.render(layout, {data: data});
-                            }
-                        });
-                }
-                else if(req.params.type == 'category') {
-                    Posts.find({ categories: req.params.key })
-                        .paginate(page, item_per_page)
-                        .populate('id_user')
-                        .populate('comments.id_user')
-                        .exec(function(error, posts) {
-                            if(user.bookmarks.length) {
-                                var i = 0;
-                                posts.forEach(function(post) {
-                                    posts[i].user_id    =   user._id;
-                                    user.bookmarks.forEach(function(bookmark) {
-                                        if(bookmark.id_post.toString() == post.id_post.toString()) {
-                                            posts[i].is_bookmarked    =   true;
-                                            posts[i].id_bookmark    =   bookmark._id;
-                                            return;
-                                        }
-                                    });
-                                    i++;
-                                });
-                            }
-                            else {
-                                var i = 0;
+            if(typeof user.data_notification_seen === undefined || user.data_notification_seen == null)
+                promises.push(Notifications.count({owner_id: user._id}).exec());
+            else
+                promises.push(Notifications.count({owner_id: user._id, date_sent: {$gt: user.data_notification_seen}}).exec());
 
-                                posts.forEach(function(post) {
-                                    posts[i].user_id    =   user._id;
-                                    i++;
-                                });
-                            }
+            if(type == 'home') {
+                promises.push(Posts.count({}).exec());
+                promises.push(Posts.find({}).paginate(page, item_per_page).populate('id_user').populate('comments.id_user').sort({date_posted: 'desc'}).exec());
+            }
+            else if(type == 'tag') {
+                promises.push(Posts.count({tags: req.params.key}).exec());
+                promises.push(Posts.find({ tags: req.params.key }).paginate(page, item_per_page).populate('id_user').populate('comments.id_user').sort({date_posted: 'desc'}).exec());
+            }
+            else if(type == 'category') {
+                promises.push(Posts.count({categories: req.params.key}).exec());
+                promises.push(Posts.find({ categories: req.params.key }).paginate(page, item_per_page).populate('id_user').populate('comments.id_user').sort({date_posted: 'desc'}).exec());
+            }
+            else if(type == 'keyword') {
+                var search      =   req.params.key;
 
-                            data.posts  =   posts;
-                            if(is_ajax)
-                            {
-                                var renderedViews   =   {};
-                                res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
-                                {
-                                    renderedViews.html  =   html;
-                                    renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
+                promises.push(Posts.count({
+                         $or: [
+                             {categories: {$regex: new RegExp("^" + search.toLowerCase(), "i")}},
+                             {tags: {$regex: new RegExp("^" + search.toLowerCase(), "i")}},
+                             {description: {$regex: new RegExp("^" + search.toLowerCase(), "i")}}
+                         ]
+                     }).exec());
+                promises.push(Posts.find({
+                         $or: [
+                             {categories: {$regex: new RegExp("^" + search.toLowerCase(), "i")}},
+                             {tags: {$regex: new RegExp("^" + search.toLowerCase(), "i")}},
+                             {description: {$regex: new RegExp("^" + search.toLowerCase(), "i")}}
+                         ]
+                     }).paginate(page, item_per_page).populate('id_user').populate('comments.id_user').sort({date_posted: 'desc'}).exec());
+            }
+            else if(type == 'user') {
+                promises.push(Posts.count({id_user: req.params.id_user}).exec());
+                promises.push(Posts.find({ id_user: req.params.id_user }).paginate(page, item_per_page).populate('id_user').populate('comments.id_user').sort({date_posted: 'desc'}).exec());
+            }
 
-                                    res.json(renderedViews);
-                                });
-                            }
-                            else
-                            {
-                                data.action =   req.url;
-                                res.render(layout, {data: data});
+            q.all(promises).then(function(results) {
+                var notification_count  =   results[0];
+                var posts_count         =   results[1];
+
+                var posts   =   results[2];
+
+                if(user.bookmarks.length) {
+                    var i = 0;
+                    posts.forEach(function(post) {
+                        posts[i].user_id    =   user._id;
+                        user.bookmarks.forEach(function(bookmark) {
+                            if(bookmark.id_post.toString() == post.id_post.toString()) {
+                                posts[i].is_bookmarked    =   true;
+                                posts[i].id_bookmark    =   bookmark._id;
+                                return;
                             }
                         });
-                }
-                else if(req.params.type == 'keyword') {
-                    var search      =   req.params.key;
-
-                    Posts.find({
-                             $or: [
-                                 {categories: {$regex: new RegExp("^" + search.toLowerCase(), "i")}},
-                                 {tags: {$regex: new RegExp("^" + search.toLowerCase(), "i")}},
-                                 {description: {$regex: new RegExp("^" + search.toLowerCase(), "i")}}
-                             ]
-                         })
-                        .paginate(page, item_per_page)
-                        .populate('id_user')
-                        .populate('comments.id_user')
-                        .exec(function(error, posts) {
-                            if(user.bookmarks.length) {
-                                var i = 0;
-                                posts.forEach(function(post) {
-                                    posts[i].user_id    =   user._id;
-                                    user.bookmarks.forEach(function(bookmark) {
-                                        if(bookmark.id_post.toString() == post.id_post.toString()) {
-                                            posts[i].is_bookmarked  =   true;
-                                            posts[i].id_bookmark    =   bookmark._id;
-                                            return;
-                                        }
-                                    });
-                                    i++;
-                                });
-                            }
-                            else {
-                                var i = 0;
-
-                                posts.forEach(function(post) {
-                                    posts[i].user_id    =   user._id;
-                                    i++;
-                                });
-                            }
-
-                            data.posts  =   posts;
-                            if(is_ajax)
-                            {
-                                var renderedViews   =   {};
-                                res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
-                                {
-                                    renderedViews.html  =   html;
-                                    renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
-
-                                    res.json(renderedViews);
-                                });
-                            }
-                            else
-                            {
-                                data.action =   req.url;
-                                res.render(layout, {data: data});
-                            }
-                        });
+                        i++;
+                    });
                 }
                 else {
-                    res.render('error', {data: data});
+                    var i = 0;
+
+                    posts.forEach(function(post) {
+                        posts[i].user_id    =   user._id;
+                        i++;
+                    });
+                }
+
+                data.posts  =   posts;
+
+                if(is_ajax)
+                {
+                    var renderedViews   =   {};
+                    res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
+                    {
+                        renderedViews.html  =   html;
+                        renderedViews.is_next_page  =   posts_count > page * item_per_page;
+
+                        res.json(renderedViews);
+                    });
+                }
+                else
+                {
+                    data.notification_count =   notification_count == 0 ? '' : notification_count;
+                    data.action =   req.url;
+                    res.render(layout, {data: data});
                 }
             });
-        }
-        else {
-            res.render(layout, data);
-        }
+        });
+    }
+
+    app.route(['/home', '/']).get(function (req, res) {
+        common(req, res, 'home');
+    });
+
+    app.route('/home/search/:type/:key').get(function (req, res)
+    {
+        common(req, res, req.params.type);
     });
 
     app.route('/users/:id_user').get(function (req, res)
     {
-        var Users   =   require('../models/users.js');
-        var data    =   {};
-        var is_ajax =   req.xhr;
-        var email   =   req.session.email;
-        var layout  =   'login';
-        var page    =   typeof req.params.page == 'undefine' ? 1 : req.params.page;
-
-        Object.keys(tabs).forEach(function(key) {
-            tabs[key].active    =   '';
-        });
-
-        tabs[0].active  =   'active';
-
-        if(typeof email !== 'undefined' || typeof req.params.id_user == 'undefined') {
-            var Users   =   require('../models/users.js');
-            var page    =   typeof req.query.page == 'undefined' ? 1 : req.query.page;
-            require('mongoose-pagination');
-
-            Users.findOne({email: email}, function(err, user)
-            {
-                if(typeof user === undefined || user == null) {
-                    res.redirect('/');
-                    return;
-                }
-
-                if( ! err) {
-                    layout      =   'index';
-                    data.user   =   user;
-                    data.userJSON   =   JSON.stringify(user);
-
-                    if(user.is_admin)
-                        tabs.push({key: 'tracking', name: 'Tracking'});
-                }
-
-                data.tabs       =   tabs;
-                data.activeKey  =   'home';
-
-                var Posts   =   require('../models/posts.js');
-
-                Posts.find({ id_user: req.params.id_user })
-                    .paginate(page, item_per_page)
-                    .populate('id_user')
-                    .populate('comments.id_user')
-                    .exec(function(error, posts) {
-                        if(user.bookmarks.length) {
-                            var i = 0;
-                            posts.forEach(function(post) {
-                                posts[i].user_id    =   user._id;
-                                user.bookmarks.forEach(function(bookmark) {
-                                    if(bookmark.id_post.toString() == post.id_post.toString()) {
-                                        posts[i].is_bookmarked    =   true;
-                                        posts[i].id_bookmark    =   bookmark._id;
-                                        return;
-                                    }
-                                });
-                                i++;
-                            });
-                        }
-                        else {
-                            var i = 0;
-
-                            posts.forEach(function(post) {
-                                posts[i].user_id    =   user._id;
-                                i++;
-                            });
-                        }
-
-                        data.posts  =   posts;
-
-                        if(is_ajax)
-                        {
-                            var renderedViews   =   {};
-                            res.app.render('partials/post', {layout: false, posts: data.posts}, function(error, html)
-                            {
-                                renderedViews.html  =   html;
-                                renderedViews.is_next_page  =   posts.length == 0 ? 0 : 1;
-
-                                res.json(renderedViews);
-                            });
-                        }
-                        else
-                        {
-                            data.action =   '/home';
-                            res.render(layout, {data: data});
-                        }
-                    });
-            });
-        }
-        else {
-            res.render(layout, data);
-        }
+        common(req, res, 'user');
     });
 
     app.route('/post/comment').post(function (req, res) {

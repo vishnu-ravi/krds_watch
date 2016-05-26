@@ -38,6 +38,7 @@ require('./routes/user.js')(app);
 require('./routes/post.js')(app, tabs);
 require('./routes/bookmark.js')(app, tabs);
 require('./routes/comment.js')(app);
+require('./routes/notification.js')(app);
 require('./routes/reset.js')(app);
 
 var port    =   process.env.PORT || 3000;
@@ -59,36 +60,60 @@ function getUserSession(post_owner_id) {
 }
 
 io.on('connection', function(socket) {
-    function sendNotifications(user_sessions, type, data) {
+    function sendNotifications(user_sessions, type, data, msg) {
         var notfication_data    =   {};
 
-        if(type == 'comment')
-        {
-            notfication_data['msg']     =   data.user_name + ' Commented on Your Post';
+        if(type == 'comment') {
             notfication_data['type']    =   type;
             notfication_data['id_post'] =   data.id_post;
+            notfication_data['msg']    =   msg;
         }
 
         user_sessions.forEach(function(item, index) {
-            console.log(item ,item.substring(2));
-            socket.broadcast.to(item.substring(2)).emit('notification', notfication_data)
+            socket.broadcast.to(item).emit('notification', notfication_data)
         });
     }
 
-    function saveNotification(commentInfo, type) {
+    function saveNotification(data, type) {
+        var Notifications   =   require('./models/notifications.js');
 
+        var newNotification =   Notifications({
+            owner_id: data.post_owner_id,
+            id_user: data.id_user,
+            id_post: data.id_post,
+            message: data.msg,
+            type: type
+        });
+
+        newNotification.save();
     }
 
     socket.on('register', function(userInfo) {
         online_user[this.id]    =   userInfo.id_user;
-
     });
 
     socket.on('comment', function(commentInfo) {
         var user_sessions   =   getUserSession(commentInfo.post_owner_id);
+        var msg;
+
+        switch(commentInfo.method) {
+            case 'post':
+                msg =   commentInfo.user_name + ' Commented on Your Post';
+            break;
+            case 'put':
+                msg =   commentInfo.user_name + ' Edited a Comment on Your Post';
+            break;
+            case 'delete':
+                msg =   commentInfo.user_name + ' Deleted a Comment on Your Post';
+            break;
+            default:
+                msg =   'You have new notification from ' + commentInfo.user_name;
+        }
+
+        commentInfo.msg =   msg;
 
         if(user_sessions.length > 0)
-            sendNotifications(user_sessions ,'comment', commentInfo);
+            sendNotifications(user_sessions ,'comment', commentInfo, msg);
 
         saveNotification(commentInfo, 'comment');
     });

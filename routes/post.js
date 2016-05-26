@@ -22,8 +22,9 @@ module.exports = function (app, tabs) {
         }
 
         var Users       =   require('../models/users.js');
-        var Tags        =    require('../models/tags.js');
-        var Categories  =    require('../models/categories.js');
+        var Tags        =   require('../models/tags.js');
+        var Categories  =   require('../models/categories.js');
+        var Notifications   =   require('../models/notifications.js');
 
         var promises    =   [
             Users.findOne({email: email}).exec(),
@@ -44,7 +45,7 @@ module.exports = function (app, tabs) {
                 res.redirect('/');
                 return;
             }
-            
+
             if(typeof id_post !== undefined && typeof results[3] !== undefined)
                 post        =   results[3];
 
@@ -68,7 +69,18 @@ module.exports = function (app, tabs) {
                 data.post_json  =   JSON.stringify(post);
             }
 
-            res.render('post', data);
+            var notification_promise    =   [];
+
+            if(typeof user.data_notification_seen === undefined || user.data_notification_seen == null)
+                notification_promise.push(Notifications.count({owner_id: user._id}).exec());
+            else
+                notification_promise.push(Notifications.count({owner_id: user._id, date_sent: {$gt: user.data_notification_seen}}).exec());
+
+            q.all(notification_promise).then(function(results) {
+                var notification_count  =   results[0];
+                data.notification_count =   notification_count == 0 ? '' : notification_count;
+                res.render('post', data);
+            });
         })
         .catch(function(err) {
             res.status(500);

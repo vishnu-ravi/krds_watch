@@ -7,6 +7,7 @@ var userSchema  =   new Schema({
     picture: {type: String, required: true},
     category: {type: String, default: 'Global'},
     is_admin: {type: Boolean, default: 0},
+    data_notification_seen: {type: Date},
     bookmarks: [{
         id_post: {type: mongoose.Schema.Types.ObjectId, ref: 'Posts'},
         date_added: {type: Date}
