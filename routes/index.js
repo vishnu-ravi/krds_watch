@@ -163,6 +163,71 @@ module.exports = function ( app, tabs ) {
         common(req, res, 'user');
     });
 
+    app.route('/user/post/:id_post').get(function (req, res)
+    {
+        var email   =   req.session.email;
+
+        if(typeof email === undefined) {
+            res.redirect('/');
+            return;
+        }
+
+        var data    =   {};
+
+        Users.findOne({email: email}, function(err, user)
+        {
+            if(err) {
+                data.msg    =   err;
+                res.render('error', {data: data});
+                return;
+            }
+            var id_post =   req.params.id_post;
+
+            if(typeof id_post === undefined || id_post == null || id_post == 'undefined') {
+                res.redirect('/');
+                return;
+            }
+
+            if(typeof user === undefined || user == null) {
+                res.redirect('/');
+                return;
+            }
+
+            data.user       =   user;
+            data.userJSON   =   JSON.stringify(user);
+
+            if(user.is_admin)
+                tabs.push({key: 'tacking', name: 'Tracking'});
+
+            Object.keys(tabs).forEach(function(key) {
+                tabs[key].active    =   '';
+            });
+
+            tabs[0].active  =   'active';
+            data.tabs       =   tabs;
+            data.activeKey  =   'home';
+
+            var promises    =   [];
+
+            if(typeof user.data_notification_seen === undefined || user.data_notification_seen == null)
+                promises.push(Notifications.count({owner_id: user._id}).exec());
+            else
+                promises.push(Notifications.count({owner_id: user._id, date_sent: {$gt: user.data_notification_seen}}).exec());
+
+
+            var page    =   typeof req.query.page == 'undefined' ? 1 : req.query.page;
+
+            promises.push(Posts.find({_id: id_post}).populate('id_user').populate('comments.id_user').exec());
+
+            q.all(promises).then(function(results) {
+                var notification_count  =   results[0];
+                var post               =   results[1];
+
+                res.json({post: post});
+            });
+        });
+    });
+
     app.route('/post/comment').post(function (req, res) {
         var Posts   =   require('../models/posts.js');
 
