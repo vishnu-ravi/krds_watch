@@ -1,4 +1,11 @@
 /*Common*/
+html {
+  height: 100%;
+}
+body {
+  min-height: 100%;
+}
+
 a {
     color: inherit;
 }
@@ -38,6 +45,9 @@ a {
     color: #1565c0;
 }
 
+.headerTitle {
+    left: 45% !important;
+}
 /*User Info*/
 .userName {
     padding-left: 15px;

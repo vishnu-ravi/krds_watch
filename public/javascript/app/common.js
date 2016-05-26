@@ -16,7 +16,7 @@ Common.prototype.bindEvents =   function() {
         if($(this).hasClass('active'))
         {
             $(this).removeClass('active').parent().removeClass('active');
-            $('#notification_container').empty();
+            $('#notification_container').empty().scrollTop(0);
             $('#block_notifications').hide();
             if(_this.is_scroll_listner_active) {
                 _this.is_scroll_listner_active   =   false;
@@ -32,8 +32,12 @@ Common.prototype.bindEvents =   function() {
             _this.getNotification();
             _this.setNotificationSeenStatus();
         }
-
     });
+
+    $('body').on('click', function(e) {
+        if ( ! $(e.target).hasClass('clickInActive') && $('.btnNotifications').hasClass('active'))
+           $('.btnNotifications').trigger('click');
+    })
 };
 
 Common.prototype.getNotification =   function() {
@@ -44,6 +48,7 @@ Common.prototype.getNotification =   function() {
 
     _this.busy  =   false;
     $('body').addClass('loading');
+    $('#block_notifications').show();
     $('#notification_loader').show();
 
     $.ajax({
@@ -62,8 +67,10 @@ Common.prototype.getNotification =   function() {
             $('#notification_container').append(data.html);
             $('#block_notifications').show();
 
-            $('#notification_container li').css({opacity: 0});
-            Materialize.showStaggeredList('#notification_container');
+            if(_this.notificationPage === 1)
+                Materialize.showStaggeredList('#notification_container');
+            else
+                $('#notification_container li').css({opacity: 1});
 
             if(data.is_next_page && ! _this.is_scroll_listner_active)
                 _this.listenScroll();
