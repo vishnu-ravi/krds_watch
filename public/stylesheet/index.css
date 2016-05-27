@@ -355,7 +355,10 @@ li.search {
 }
 /*Media Query for mobile and Tabelt*/
 @media only screen and (max-width:992px) {
-
+    #main {
+        position: relative;
+        z-index: 1000;
+    }
     #main.animate {
         animation: moveAside 1s;
         animation-fill-mode: forwards;
@@ -369,7 +372,10 @@ li.search {
     }
 
     .blockNotifications {
-        position: inherit;
+        position: absolute;
+        top: 56px;
+        left: 0;
+        right: 0;
     }
 
     .notificationContainer {
@@ -377,10 +383,9 @@ li.search {
         height: 100%;
         max-height: 100%;
     }
-
-    #btn_notificaiton_back {
-        margin-left: 5%;
-        margin-top: 5%;
+    .btnBackWrapper {
+        padding-left: 5%;
+        padding-top: 5%;
     }
 }
 
@@ -392,6 +397,18 @@ li.search {
 @keyframes moveBack {
     0% {transform: translateX(-110%);}
     100% {transform: translateX(0%);}
+}
+
+
+/*User Post Page */
+.userPostCard {
+    max-height: 90% !important;
+}
+
+.blockCommentBox {
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 230px;
 }
 
 /*Place Holder color Change*/

@@ -1,0 +1,64 @@
+{{> nav data}}
+<div class="container" id="main">
+    <div class="valign-wrapper">
+        <div style="margin: auto;">
+
+            <div class="card large hoverable">
+                <div class="card-content userPostCard">
+                    <div class="row userInfoRow">
+                        <div class="col s12 valign-wrapper">
+                            <a href="/users/{{data.post.id_user._id}}" class="" style="width:100%">
+                                <span class="left" style="width:100%">
+                                    <img src="{{data.post.id_user.picture}}" alt="{{data.post.id_user.name}}" class="userImg circle responsive-img z-depth-2 left" height="35px" width="35px" />
+                                    <div class="left userInfo">
+                                        <div class="userInfoData userName truncate">{{data.post.id_user.name}}</div>
+                                        <div class="dateInfo commentDate truncate">{{#dateFormat data.post.date_edited}}{{/dateFormat}}</div>
+                                    </div>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                    <p style="height:32px;">{{#each data.post.tags}} <a href="/home/search/tag/{{this}}" class="chip tooltipped"  data-position="top" data-delay="50" data-tooltip="tag">{{this}}</a>{{/each}}</p>
+                    <p>{{data.post.description}}</p>
+                    <p class="row">
+                        <a href="{{data.post.url}}" target="_blank">
+                            <span class="col s4 postImg" style="background: url({{data.post.image}}) no-repeat center;"></span>
+                            <span class="col s8">
+                                <span class="truncate">{{data.post.title}}</span>
+                                <span class="previewDescription">{{#truncate data.post.preview_description}}{{/truncate}}</span>
+                            </span>
+                        </a>
+                    </p>
+                    <div id="block_comment_box" class="row blockCommentBox">
+                        {{#each data.post.comments}}
+                            <div class="row">
+                                <div class="col s12">
+                                    <a href="/users/{{this.id_user._id}}" class="">
+                                        <span class="left" style="display:block; width: 100%;">
+                                            <img src="{{this.id_user.picture}}" alt="{{this.id_user.name}}" class="userImg circle responsive-img z-depth-2 left" height="40px" width="40px" />
+                                            <div class="left userInfo">
+                                                <div class="userInfoData truncate">{{this.id_user.name}}</div>
+                                                <div class="dateInfo commentDate truncate">{{#dateFormat this.date}}{{/dateFormat}}</div>
+                                            </div>
+                                        </span>
+                                    </a>
+                                </div>
+                                <div class="col s10 offset-s2">
+                                    <span>{{this.comment}}</span>
+                                </div>
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+                <div class="card-action">
+                    <span class="left category">{{#each data.post.categories}} <a href="/home/search/category/{{this}}" class="chip tooltipped" data-position="top" data-delay="50" data-tooltip="category">{{this}}</a>{{/each}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/javascript/app/notification.js"></script>
+<script src="/javascript/app/common.js"></script>
+<script>
+    
+</script>

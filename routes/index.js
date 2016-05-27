@@ -217,13 +217,14 @@ module.exports = function ( app, tabs ) {
 
             var page    =   typeof req.query.page == 'undefined' ? 1 : req.query.page;
 
-            promises.push(Posts.find({_id: id_post}).populate('id_user').populate('comments.id_user').exec());
+            promises.push(Posts.findOne({_id: id_post}).populate('id_user').populate('comments.id_user').exec());
 
             q.all(promises).then(function(results) {
                 var notification_count  =   results[0];
-                var post               =   results[1];
+                var post                =   results[1];
+                data.post               =   post;
 
-                res.json({post: post});
+                res.render('user_post', {data: data});
             });
         });
     });

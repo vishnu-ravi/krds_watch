@@ -1,6 +1,6 @@
 {{#each notifications}}
     <li data-id_post="{{id_post}}" class="{{#if is_seen}} light-blue lighten-5 {{else}}  blue lighten-5{{/if}} valign-wrapper clickInActive">
-        <a href="/user/post/{{id_post}}" class="valign-wrapper clickInActive">
+        <a href="/user/post/{{id_post}}?id={{_id}}" class="valign-wrapper clickInActive">
             <img src="{{id_user.picture}}" alt="{{id_user.name}}" class="circle responsive-img  z-depth-3 clickInActive" height="45px" width="45px" />
             <span class="clickInActive">{{message}}</span>
         </a>
