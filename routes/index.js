@@ -163,11 +163,11 @@ module.exports = function ( app, tabs ) {
         common(req, res, 'user');
     });
 
-    app.route('/user/post/:id_post').get(function (req, res)
+    app.route('/user/post/:id_post/:id_notification').get(function (req, res)
     {
         var email   =   req.session.email;
 
-        if(typeof email === undefined) {
+        if(typeof email === undefined || email == null || email == 'undefined') {
             res.redirect('/');
             return;
         }
@@ -182,8 +182,14 @@ module.exports = function ( app, tabs ) {
                 return;
             }
             var id_post =   req.params.id_post;
+            var id_notification =   req.params.id_notification;
 
             if(typeof id_post === undefined || id_post == null || id_post == 'undefined') {
+                res.redirect('/');
+                return;
+            }
+
+            if(typeof id_notification === undefined || id_notification == null || id_notification == 'undefined') {
                 res.redirect('/');
                 return;
             }
@@ -222,6 +228,7 @@ module.exports = function ( app, tabs ) {
             q.all(promises).then(function(results) {
                 var notification_count  =   results[0];
                 var post                =   results[1];
+                data.id_notification    =   id_notification;
                 data.post               =   post;
 
                 res.render('user_post', {data: data});

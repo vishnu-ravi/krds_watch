@@ -13,7 +13,7 @@ module.exports = function ( app ) {
         require('mongoose-pagination');
 
         try {
-            if(typeof email === 'undefined')
+            if(typeof email === undefined || email == null || email == 'undefined')
                 throw {msg: 'unAuthorized', status: 403};
 
             Users.findOne({email: email}, function(err, user) {
@@ -44,6 +44,39 @@ module.exports = function ( app ) {
                         res.json(renderedViews);
                     });
 
+                });
+            });
+        }
+        catch(e) {
+            var status  =   typeof e.status == 'undefined' ? 400 : e.status;
+            res.status(status);
+            res.json({ msg: e.msg});
+        }
+    }).put(function(req, res) {
+        var email   =   req.session.email;
+
+        try {
+            if(typeof email === undefined || email == null || email == 'undefined')
+                throw {msg: 'unAuthorized', status: 403};
+
+            if(req.body.id_notification == null || typeof req.body.id_notification == 'undefined')
+                throw {msg: 'Empty Notification ID', status: 400};
+
+            Users.findOne({email: email}, function(err, user) {
+                if(typeof user === undefined || user == null)
+                    throw {msg: 'unAuthorized', status: 403};
+
+                Notifications.findOneAndUpdate({_id: req.body.id_notification, owner_id: user._id},
+                    {$set: {is_seen: true}},
+                    {safe: true},
+                    function(err, model) {
+                        if(err)
+                        {
+                            res.status(500);
+                            res.json({ msg: 'DB Error', 'error': err});
+                        }
+                        else
+                            res.json({ msg: 'Successfully Updated'});
                 });
             });
         }

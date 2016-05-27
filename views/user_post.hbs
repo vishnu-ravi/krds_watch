@@ -60,5 +60,27 @@
 <script src="/javascript/app/notification.js"></script>
 <script src="/javascript/app/common.js"></script>
 <script>
-    
+    $(document).ready(function() {
+        var id_notification =   '{{data.id_notification}}';
+
+        $.ajax({
+            cache: false,
+            type: 'put',
+            url: '/notifications',
+            dataType: 'json',
+            data: {
+                id_notification: id_notification
+            },
+            error: function(jXhr) {
+                if(jXhr.status == 400 || jXhr.status == 500 || jXhr.status == 403)
+                    console.log(jXhr.msg);
+            },
+            success: function(data) {
+
+            },
+            complete: function(){
+                
+            }
+        });
+    });
 </script>
