@@ -29,7 +29,7 @@ var register = function(Handlebars) {
                     return options.inverse(this);
             }
         },
-
+        
         dateFormat: function(date_str, options) {
             var date     =   new Date(date_str);
 

@@ -13,6 +13,7 @@ a {
 .container {
     width: 95%;
     margin-top: 10px;
+    z-index: 997 !important;
 }
 
 .defaultHidden{
@@ -303,6 +304,17 @@ li.search {
     margin-left: 10px;
 }
 
+/**
+ * Post Page Style
+ */
+.radioBlock {
+    margin-left: 15%;
+}
+
+.noOutline input[type=text]:focus:not([readonly]){
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
 /*Media Queries for Mobile*/
 @media only screen and (max-device-width: 480px) {
     .btnPostComment {
