@@ -7,12 +7,6 @@
         <form class="col s12">
             <div class="row">
                 <div class="input-field col s12">
-                    <input type="text" id="description" name="description" length="40" class="validate" {{#if post}} value="{{post.description}}" {{/if}}  />
-                    <label for="description">Description</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="input-field col s12">
                     <input type="text" id="url" name="description" class="validate" {{#if post}} value="{{post.url}}" {{/if}}  />
                     <label for="URL">URL</label>
                 </div>
@@ -34,6 +28,12 @@
                     <label for="preview">Preview</label>
                 </div>
             </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input type="text" id="description" name="description" length="40" class="validate" {{#if post}} value="{{post.description}}" {{/if}}  />
+                    <label for="description">Description</label>
+                </div>
+            </div>            
             <div class="row">
                 <div class="input-field col s12 noOutline">
                     <input type="text" id="tags" name="tags" placeholder="Tags"/>

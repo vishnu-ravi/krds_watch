@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function (app, tabs) {
     var Posts   =   require('../models/posts.js');
     var q       =   require('q');
@@ -230,7 +232,7 @@ module.exports = function (app, tabs) {
             res.status(400);
             res.json({msg:'Invalid Url'});
         }
-
+                
         var scrape      =   require('html-metadata');
         var request     =   require('request');
 
@@ -278,7 +280,7 @@ module.exports = function (app, tabs) {
                 }
             }
 
-            if( ! image || image.match(/\.(jpeg|jpg|gif|png)/) == null)
+            if( ! image)
                 image   =   '/images/setting_icon.png';
 
         	res.json({title: title, description: description, image: image, metadata: metadata});
